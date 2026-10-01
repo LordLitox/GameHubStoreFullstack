@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameHub Store — Finalizar Compra</title>
+  <meta name="description" content="Completa los datos de despacho y pago para confirmar tu pedido en GameHub Store." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <a class="saltar-enlace" href="#contenido-principal">Saltar al contenido principal</a>
+
+  <header class="cabecera-sitio">
+    <div class="contenedor">
+      <a class="marca" href="index.html">
+        Game<span class="marca__acento">Hub</span> Store
+      </a>
+
+      <button type="button" class="boton-menu" id="botonMenu" aria-expanded="false" aria-controls="navPrincipal">
+        <span aria-hidden="true">☰</span>
+        <span>Menú</span>
+      </button>
+
+      <nav class="nav-principal" id="navPrincipal" aria-label="Navegación principal">
+        <ul class="nav-principal__lista">
+          <li><a class="nav-principal__enlace" href="index.html">Inicio</a></li>
+          <li><a class="nav-principal__enlace" href="catalogo.html">Catálogo</a></li>
+          <li><a class="nav-principal__enlace" href="carrito.html">Carrito</a></li>
+          <li><a class="nav-principal__enlace" href="checkout.html" aria-current="page">Checkout</a></li>
+          <li><a class="nav-principal__enlace" href="ordenes.html">Mis pedidos</a></li>
+        </ul>
+      </nav>
+
+      <div class="acciones-cabecera">
+        <a class="icono-carrito" href="carrito.html" aria-label="Ver carrito de compras">
+          <span aria-hidden="true">🛒</span>
+          <span>Carrito</span>
+          <span class="icono-carrito__contador" aria-hidden="true">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="contenido-principal" class="seccion">
+    <div class="contenedor">
+      <h1>Finalizar Compra</h1>
+      <p>Ingresa los datos para el despacho de tus productos gamer y selecciona tu método de pago simulado.</p>
+
+      <div id="alerta-carrito-vacio" class="mensaje-alerta" style="display: none;" role="alert">
+        <span class="mensaje-alerta__icono">⚠</span>
+        <div>
+          <strong>Tu carrito está vacío.</strong> Debes agregar productos antes de poder completar el pedido.
+          <p style="margin: 0.5rem 0 0 0;"><a class="boton-secundario" href="catalogo.html">Ir al catálogo</a></p>
+        </div>
+      </div>
+
+      <div class="grid-hero" style="display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--espacio-lg); align-items: start;">
+        
+        <!-- Formulario de Despacho y Pago -->
+        <form id="formulario-checkout" novalidate>
+          
+          <fieldset style="border: 1px solid var(--color-borde); border-radius: var(--radio-md); padding: var(--espacio-md); margin-bottom: var(--espacio-md);">
+            <legend style="color: var(--color-texto-alto); font-weight: 700; padding: 0 var(--espacio-xs);">1. Datos de Despacho</legend>
+
+            <!-- Nombre -->
+            <div class="campo-formulario">
+              <label for="checkout-nombre">Nombre y Apellido *</label>
+              <input 
+                type="text" 
+                id="checkout-nombre" 
+                name="nombre" 
+                autocomplete="name" 
+                placeholder="Ej. Constanza Morales"
+                aria-describedby="ayuda-nombre error-nombre"
+                required 
+              />
+              <span id="ayuda-nombre" class="texto-ayuda">Nombre de quien recibirá el paquete.</span>
+              <span id="error-nombre" class="texto-error" style="display: none;" role="alert"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="campo-formulario">
+              <label for="checkout-email">Correo Electrónico *</label>
+              <input 
+                type="email" 
+                id="checkout-email" 
+                name="email" 
+                autocomplete="email" 
+                placeholder="tu_correo@ejemplo.cl"
+                aria-describedby="ayuda-email error-email"
+                required 
+              />
+              <span id="ayuda-email" class="texto-ayuda">Enviaremos el comprobante y seguimiento de la orden.</span>
+              <span id="error-email" class="texto-error" style="display: none;" role="alert"></span>
+            </div>
+
+            <!-- Teléfono -->
+            <div class="campo-formulario">
+              <label for="checkout-telefono">Teléfono Móvil (Chile) *</label>
+              <input 
+                type="tel" 
+                id="checkout-telefono" 
+                name="telefono" 
+                autocomplete="tel" 
+                placeholder="912345678"
+                maxlength="9"
+                aria-describedby="ayuda-telefono error-telefono"
+                required 
+              />
+              <span id="ayuda-telefono" class="texto-ayuda">9 dígitos sin espacios ni código de país (+56).</span>
+              <span id="error-telefono" class="texto-error" style="display: none;" role="alert"></span>
+            </div>
+
+            <!-- Región -->
+            <div class="campo-formulario">
+              <label for="checkout-region">Región *</label>
+              <select id="checkout-region" name="region" aria-describedby="error-region" required>
+                <option value="">Selecciona tu región...</option>
+                <option value="metropolitana">Región Metropolitana</option>
+                <option value="valparaiso">Región de Valparaíso</option>
+                <option value="biobio">Región del Biobío</option>
+              </select>
+              <span id="error-region" class="texto-error" style="display: none;" role="alert"></span>
+            </div>
+
+            <!-- Comuna -->
+            <div class="campo-formulario">
+              <label for="checkout-comuna">Comuna *</label>
+              <input 
+                type="text" 
+                id="checkout-comuna" 
+                name="comuna" 
+                autocomplete="address-level2" 
+                placeholder="Ej. Santiago Centro, Maipú, Viña del Mar"
+                aria-describedby="error-comuna"
+                required 
+              />
+              <span id="error-comuna" class="texto-error" style="display: none;" role="alert"></span>
+            </div>
+
+            <!-- Dirección -->
+            <div class="campo-formulario">
+              <label for="checkout-direccion">Dirección exacta y número (o depto) *</label>
+              <input 
+                type="text" 
+                id="checkout-direccion" 
+                name="direccion" 
+                autocomplete="street-address" 
+                placeholder="Ej. Av. Providencia 1234, Depto 501"
+                aria-describedby="ayuda-direccion error-direccion"
+                required 
+              />
+              <span id="ayuda-direccion" class="texto-ayuda">Incluye calle, número de vivienda y bloque/depto si aplica.</span>
+              <span id="error-direccion" class="texto-error" style="display: none;" role="alert"></span>
+            </div>
+
+          </fieldset>
+
+          <fieldset style="border: 1px solid var(--color-borde); border-radius: var(--radio-md); padding: var(--espacio-md); margin-bottom: var(--espacio-md);">
+            <legend style="color: var(--color-texto-alto); font-weight: 700; padding: 0 var(--espacio-xs);">2. Medio de Pago Simulado</legend>
+            <div class="campo-formulario">
+              <label for="checkout-pago">Método de pago *</label>
+              <select id="checkout-pago" name="metodoPago" aria-describedby="error-pago" required>
+                <option value="">Elige una opción...</option>
+                <option value="webpay">Webpay Plus (Débito / Crédito)</option>
+                <option value="transferencia">Transferencia Bancaria Directa</option>
+                <option value="mach">MACH / Prepago Digital</option>
+              </select>
+              <span id="error-pago" class="texto-error" style="display: none;" role="alert"></span>
+            </div>
+          </fieldset>
+
+          <button type="submit" id="btn-confirmar-orden" class="boton-primario" style="width: 100%;">
+            Confirmar y Pagar Orden
+          </button>
+        </form>
+
+        <!-- Resumen lateral de la orden -->
+        <aside class="resumen-pedido" aria-labelledby="titulo-resumen">
+          <h2 id="titulo-resumen">Resumen del Pedido</h2>
+          <div id="checkout-items-resumen" style="margin-bottom: var(--espacio-sm);"></div>
+          
+          <div class="resumen-pedido__fila">
+            <span>Subtotal:</span>
+            <span id="resumen-subtotal">$0</span>
+          </div>
+          <div class="resumen-pedido__fila">
+            <span>Descuento Cupón:</span>
+            <span id="resumen-descuento" style="color: var(--color-acento);">$0</span>
+          </div>
+          <div class="resumen-pedido__fila resumen-pedido__fila--total">
+            <span>Total a Pagar:</span>
+            <span id="resumen-total">$0</span>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="pie-sitio">
+    <div class="contenedor">
+      <div>
+        <h2>GameHub Store</h2>
+        <p>Tu tienda gamer de confianza. DSY1104 — Proyecto EP1.</p>
+      </div>
+      <p class="pie-sitio__copyright">© 2026 GameHub Store. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/validaciones.js"></script>
+</body>
+</html>

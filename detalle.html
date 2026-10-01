@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameHub Store — Detalle de Producto</title>
+  <meta name="description" content="Información técnica detallada, especificaciones y reseñas de productos gamer en GameHub Store." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <a class="saltar-enlace" href="#contenido-principal">Saltar al contenido principal</a>
+
+  <!-- ===================== ENCABEZADO ===================== -->
+  <header class="cabecera-sitio">
+    <div class="contenedor">
+      <a class="marca" href="index.html">
+        Game<span class="marca__acento">Hub</span> Store
+      </a>
+
+      <button type="button" class="boton-menu" id="botonMenu" aria-expanded="false" aria-controls="navPrincipal">
+        <span aria-hidden="true">☰</span>
+        <span>Menú</span>
+      </button>
+
+      <nav class="nav-principal" id="navPrincipal" aria-label="Navegación principal">
+        <ul class="nav-principal__lista">
+          <li><a class="nav-principal__enlace" href="index.html">Inicio</a></li>
+          <li><a class="nav-principal__enlace" href="catalogo.html">Catálogo</a></li>
+          <li><a class="nav-principal__enlace" href="carrito.html">Carrito</a></li>
+          <li><a class="nav-principal__enlace" href="checkout.html">Checkout</a></li>
+          <li><a class="nav-principal__enlace" href="ordenes.html">Mis pedidos</a></li>
+        </ul>
+      </nav>
+
+      <div class="acciones-cabecera">
+        <a class="icono-carrito" href="carrito.html" aria-label="Ver carrito de compras">
+          <span aria-hidden="true">🛒</span>
+          <span>Carrito</span>
+          <span class="icono-carrito__contador" aria-hidden="true">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== CONTENIDO PRINCIPAL ===================== -->
+  <main id="contenido-principal" class="seccion">
+    <div class="contenedor">
+      
+      <!-- Enlace miga de pan -->
+      <nav aria-label="Ruta de navegación" style="margin-bottom: var(--espacio-md);">
+        <a href="catalogo.html" style="font-size: var(--tam-pequeno);">← Volver al catálogo</a>
+      </nav>
+
+      <!-- Contenedor dinámico del detalle -->
+      <section id="contenedor-detalle-producto">
+        <!-- Renderizado dinámico desde JS si existe ID, o plantilla por defecto -->
+        <div class="grid-hero" style="display: grid; grid-template-columns: 1.1fr 1fr; gap: var(--espacio-xl); align-items: start;">
+          
+          <!-- Imagen principal / Galería -->
+          <div>
+            <img 
+              id="detalle-imagen" 
+              class="tarjeta-producto__imagen" 
+              src="assets/img/producto-mouse-rgb.jpg" 
+              alt="Fotografía de producto gamer" 
+              style="width: 100%; border-radius: var(--radio-lg); border: 1px solid var(--color-borde); aspect-ratio: 4/3; object-fit: cover;"
+            />
+          </div>
+
+          <!-- Información comercial y acciones -->
+          <div style="background-color: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: var(--radio-lg); padding: var(--espacio-lg);">
+            <p id="detalle-categoria" class="tarjeta-producto__categoria" style="margin-bottom: 0.2rem;">Periféricos</p>
+            <h1 id="detalle-titulo" style="margin-bottom: var(--espacio-sm);">Mouse Inalámbrico RGB Pro</h1>
+            <p id="detalle-marca" style="font-size: var(--tam-pequeno); color: var(--color-texto-tenue); margin-bottom: var(--espacio-md);">Marca: Logitech</p>
+
+            <div style="margin-bottom: var(--espacio-md);">
+              <div id="detalle-precios" style="display: flex; align-items: baseline; gap: var(--espacio-sm);">
+                <span id="detalle-precio" class="tarjeta-producto__precio" style="font-size: 1.8rem;">$29.990</span>
+                <s id="detalle-precio-original" style="display: none; color: var(--color-texto-tenue); font-size: 1.1rem;"></s>
+              </div>
+              <p id="detalle-stock" style="margin-top: 0.3rem; font-size: var(--tam-pequeno); color: var(--color-acento); font-weight: 600;">
+                ✓ Stock disponible: 12 unidades
+              </p>
+            </div>
+
+            <p id="detalle-descripcion" style="margin-bottom: var(--espacio-md);">
+              Sensor óptico de alta precisión, conectividad inalámbrica de 2.4GHz y diseño ergonómico ultraligero pensado para eSports.
+            </p>
+
+            <!-- Control de compra y cantidad -->
+            <form id="formulario-agregar-detalle" onsubmit="event.preventDefault();" style="border-top: 1px dashed var(--color-borde); padding-top: var(--espacio-md);">
+              <div style="display: flex; align-items: center; gap: var(--espacio-md); margin-bottom: var(--espacio-md);">
+                <label for="detalle-cantidad" style="font-weight: 600; font-size: var(--tam-pequeno);">Cantidad:</label>
+                <input 
+                  type="number" 
+                  id="detalle-cantidad" 
+                  name="cantidad" 
+                  value="1" 
+                  min="1" 
+                  max="12" 
+                  style="width: 4rem; text-align: center;"
+                />
+              </div>
+
+              <button type="button" id="btn-detalle-agregar" class="boton-primario" style="width: 100%;">
+                Agregar al carrito
+              </button>
+              <span id="detalle-error-stock" class="texto-error" style="display: none; margin-top: 0.5rem;" role="alert"></span>
+            </form>
+          </div>
+
+        </div>
+
+        <!-- Especificaciones técnicas -->
+        <section style="margin-top: var(--espacio-xl);" aria-labelledby="titulo-specs">
+          <h2 id="titulo-specs">Especificaciones Técnicas</h2>
+          <div style="background-color: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: var(--radio-lg); padding: var(--espacio-md);">
+            <table class="tabla-carrito">
+              <tbody id="detalle-tabla-specs">
+                <tr>
+                  <th scope="row" style="width: 35%;">Sensor</th>
+                  <td>Óptico 16000 DPI</td>
+                </tr>
+                <tr>
+                  <th scope="row">Peso</th>
+                  <td>68g ultraligero</td>
+                </tr>
+                <tr>
+                  <th scope="row">Batería</th>
+                  <td>Hasta 60 horas continuas</td>
+                </tr>
+                <tr>
+                  <th scope="row">Conexión</th>
+                  <td>Inalámbrica 2.4GHz</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Reseñas y calificaciones -->
+        <section style="margin-top: var(--espacio-xl);" aria-labelledby="titulo-resenas">
+          <div class="flex-entre" style="margin-bottom: var(--espacio-md);">
+            <h2 id="titulo-resenas" style="margin-bottom: 0;">Reseñas de Clientes</h2>
+            <span style="background: var(--color-superficie-alta); padding: 0.3rem 0.8rem; border-radius: var(--radio-sm); font-weight: 700; color: var(--color-acento);">
+              ★ 4.8 / 5.0 (Promedio)
+            </span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: var(--espacio-sm);">
+            <article class="tarjeta-producto" style="padding: var(--espacio-md);">
+              <div class="flex-entre" style="margin-bottom: 0.3rem;">
+                <strong style="color: var(--color-texto-alto);">Felipe R.</strong>
+                <span style="color: var(--color-acento);">★★★★★ (5/5)</span>
+              </div>
+              <p style="margin: 0; font-size: var(--tam-pequeno);">Excelente tiempo de respuesta, la batería dura varios días jugando intensamente.</p>
+              <small style="color: var(--color-texto-tenue);">Compra verificada — 28 de Agosto, 2026</small>
+            </article>
+
+            <article class="tarjeta-producto" style="padding: var(--espacio-md);">
+              <div class="flex-entre" style="margin-bottom: 0.3rem;">
+                <strong style="color: var(--color-texto-alto);">Martina S.</strong>
+                <span style="color: var(--color-acento);">★★★★☆ (4/5)</span>
+              </div>
+              <p style="margin: 0; font-size: var(--tam-pequeno);">Muy cómodo para agarre fingertip, liviano y con buen software para configurar los DPI.</p>
+              <small style="color: var(--color-texto-tenue);">Compra verificada — 15 de Agosto, 2026</small>
+            </article>
+          </div>
+        </section>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ===================== PIE DE PÁGINA ===================== -->
+  <footer class="pie-sitio">
+    <div class="contenedor">
+      <div>
+        <h2>GameHub Store</h2>
+        <p>Tu tienda gamer de confianza. DSY1104 — Proyecto EP1.</p>
+      </div>
+
+      <nav aria-label="Enlaces de navegación del pie de página">
+        <h2>Navegación</h2>
+        <ul class="pie-sitio__enlaces">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="carrito.html">Carrito</a></li>
+          <li><a href="checkout.html">Checkout</a></li>
+          <li><a href="ordenes.html">Mis pedidos</a></li>
+        </ul>
+      </nav>
+
+      <div>
+        <h2>Contacto</h2>
+        <ul class="pie-sitio__enlaces">
+          <li><a href="mailto:contacto@gamehubstore.cl">contacto@gamehubstore.cl</a></li>
+          <li><a href="tel:+56220000000">+56 2 2000 0000</a></li>
+        </ul>
+      </div>
+
+      <p class="pie-sitio__copyright">© 2026 GameHub Store. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts modulares -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Inyección dinámica de datos del producto según el parámetro URL (?id=X)
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const idParam = parseInt(params.get("id"), 10);
+
+      if (idParam && typeof PRODUCTOS !== "undefined") {
+        const prod = PRODUCTOS.find(p => p.id === idParam);
+        if (prod) {
+          // Actualizar textos e imágenes
+          document.title = `GameHub Store — ${prod.nombre}`;
+          document.getElementById("detalle-imagen").src = prod.imagen;
+          document.getElementById("detalle-imagen").alt = `Fotografía de ${prod.nombre}`;
+          document.getElementById("detalle-titulo").textContent = prod.nombre;
+          document.getElementById("detalle-categoria").textContent = prod.categoria.toUpperCase();
+          document.getElementById("detalle-marca").textContent = `Marca: ${prod.marca}`;
+          document.getElementById("detalle-descripcion").textContent = prod.descripcion || "Componente gamer de alta calidad con garantía oficial.";
+
+          // Precios
+          const precioEl = document.getElementById("detalle-precio");
+          const originalEl = document.getElementById("detalle-precio-original");
+          if (prod.descuentoVigente.activo) {
+            const finalP = Math.round(prod.precio * (1 - prod.descuentoVigente.porcentaje / 100));
+            precioEl.textContent = formatearPesosCLP(finalP);
+            originalEl.textContent = formatearPesosCLP(prod.precio);
+            originalEl.style.display = "inline";
+          } else {
+            precioEl.textContent = formatearPesosCLP(prod.precio);
+            originalEl.style.display = "none";
+          }
+
+          // Stock y controles de botón
+          const stockEl = document.getElementById("detalle-stock");
+          const inputCant = document.getElementById("detalle-cantidad");
+          const btnAgregar = document.getElementById("btn-detalle-agregar");
+          const errorStock = document.getElementById("detalle-error-stock");
+
+          if (prod.stockDisponible > 0) {
+            stockEl.textContent = `✓ Stock disponible: ${prod.stockDisponible} unidades`;
+            stockEl.style.color = "var(--color-acento)";
+            inputCant.max = String(prod.stockDisponible);
+            inputCant.disabled = false;
+            btnAgregar.disabled = false;
+            btnAgregar.className = "boton-primario";
+            btnAgregar.textContent = "Agregar al carrito";
+
+            btnAgregar.onclick = () => {
+              const cant = parseInt(inputCant.value, 10);
+              if (isNaN(cant) || cant < 1) {
+                errorStock.textContent = "La cantidad debe ser mayor a 0.";
+                errorStock.style.display = "flex";
+                return;
+              }
+              if (cant > prod.stockDisponible) {
+                errorStock.textContent = `No puedes agregar más del stock disponible (${prod.stockDisponible}).`;
+                errorStock.style.display = "flex";
+                return;
+              }
+              errorStock.style.display = "none";
+              const res = agregarAlCarrito(prod.id, cant);
+              alert(res.mensaje);
+            };
+          } else {
+            stockEl.textContent = "✕ Producto agotado (Sin stock)";
+            stockEl.style.color = "var(--color-error)";
+            inputCant.value = "0";
+            inputCant.disabled = true;
+            btnAgregar.disabled = true;
+            btnAgregar.className = "boton-deshabilitado";
+            btnAgregar.textContent = "Agotado";
+          }
+
+          // Especificaciones
+          if (prod.especificaciones) {
+            const tbodySpecs = document.getElementById("detalle-tabla-specs");
+            tbodySpecs.innerHTML = "";
+            Object.entries(prod.especificaciones).forEach(([clave, valor]) => {
+              const tr = document.createElement("tr");
+              const th = document.createElement("th");
+              th.scope = "row";
+              th.style.width = "35%";
+              th.style.textTransform = "capitalize";
+              th.textContent = clave;
+
+              const td = document.createElement("td");
+              td.textContent = valor;
+
+              tr.appendChild(th);
+              tr.appendChild(td);
+              tbodySpecs.appendChild(tr);
+            });
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

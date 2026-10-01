@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameHub Store — Carrito de Compras</title>
+  <meta name="description" content="Revisa los productos en tu carrito, aplica cupones de descuento y prepara tu pedido en GameHub Store." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <a class="saltar-enlace" href="#contenido-principal">Saltar al contenido principal</a>
+
+  <!-- ===================== ENCABEZADO ===================== -->
+  <header class="cabecera-sitio">
+    <div class="contenedor">
+      <a class="marca" href="index.html">
+        Game<span class="marca__acento">Hub</span> Store
+      </a>
+
+      <button type="button" class="boton-menu" id="botonMenu" aria-expanded="false" aria-controls="navPrincipal">
+        <span aria-hidden="true">☰</span>
+        <span>Menú</span>
+      </button>
+
+      <nav class="nav-principal" id="navPrincipal" aria-label="Navegación principal">
+        <ul class="nav-principal__lista">
+          <li><a class="nav-principal__enlace" href="index.html">Inicio</a></li>
+          <li><a class="nav-principal__enlace" href="catalogo.html">Catálogo</a></li>
+          <li><a class="nav-principal__enlace" href="carrito.html" aria-current="page">Carrito</a></li>
+          <li><a class="nav-principal__enlace" href="checkout.html">Checkout</a></li>
+          <li><a class="nav-principal__enlace" href="ordenes.html">Mis pedidos</a></li>
+        </ul>
+      </nav>
+
+      <div class="acciones-cabecera">
+        <a class="icono-carrito" href="carrito.html" aria-label="Ver carrito de compras">
+          <span aria-hidden="true">🛒</span>
+          <span>Carrito</span>
+          <span class="icono-carrito__contador" aria-hidden="true">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== CONTENIDO PRINCIPAL ===================== -->
+  <main id="contenido-principal" class="seccion">
+    <div class="contenedor">
+      <h1>Tu Carrito de Compras</h1>
+      <p>Revisa el resumen de tus componentes y periféricos antes de proceder al pago.</p>
+
+      <!-- Estado vacío explícito (se muestra dinámicamente si no hay productos) -->
+      <div id="carrito-vacio-aviso" class="mensaje-alerta" style="display: none;" role="status">
+        <span class="mensaje-alerta__icono">🛒</span>
+        <div>
+          <strong>Tu carrito está actualmente vacío.</strong> No has añadido ningún producto gamer todavía.
+          <p style="margin: 0.5rem 0 0 0;"><a class="boton-primario" href="catalogo.html">Explorar catálogo</a></p>
+        </div>
+      </div>
+
+      <!-- Contenedor general del carrito -->
+      <div id="carrito-contenido-grid" class="grid-hero" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--espacio-lg); align-items: start;">
+        
+        <!-- Tabla con el detalle por producto -->
+        <section aria-labelledby="titulo-detalle-carrito">
+          <h2 id="titulo-detalle-carrito" class="visualmente-oculto">Detalle de líneas del carrito</h2>
+          
+          <div style="overflow-x: auto; background-color: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: var(--radio-lg); padding: var(--espacio-sm);">
+            <table class="tabla-carrito">
+              <caption>Lista de productos seleccionados</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Producto</th>
+                  <th scope="col">Precio</th>
+                  <th scope="col">Cantidad</th>
+                  <th scope="col">Subtotal</th>
+                  <th scope="col">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="carrito-lineas-body">
+                <!-- Inyección dinámica desde JavaScript -->
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top: var(--espacio-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--espacio-sm);">
+            <button type="button" id="btn-vaciar-carrito" class="boton-secundario" style="color: var(--color-error); border-color: var(--color-error);">
+              Vaciar carrito
+            </button>
+            <a class="boton-secundario" href="catalogo.html">Seguir comprando</a>
+          </div>
+        </section>
+
+        <!-- Panel lateral: Cupones y Totales -->
+        <aside class="resumen-pedido" aria-labelledby="titulo-resumen-carrito">
+          <h2 id="titulo-resumen-carrito">Resumen de Compra</h2>
+
+          <!-- Bloque de Cupón de descuento -->
+          <div style="margin-bottom: var(--espacio-md); border-bottom: 1px dashed var(--color-borde); padding-bottom: var(--espacio-md);">
+            <label for="codigo-cupon" style="display: block; font-weight: 600; font-size: var(--tam-pequeno); margin-bottom: 0.35rem;">
+              Cupón de descuento:
+            </label>
+            <div style="display: flex; gap: var(--espacio-xs);">
+              <input 
+                type="text" 
+                id="codigo-cupon" 
+                placeholder="Ej. GAMEHUB20" 
+                style="flex: 1; text-transform: uppercase;"
+                aria-describedby="mensaje-cupon"
+              />
+              <button type="button" id="btn-aplicar-cupon" class="boton-secundario">Aplicar</button>
+            </div>
+            <!-- Mensajes dinámicos de cupón (éxito o error con icono) -->
+            <span id="mensaje-cupon" class="texto-error" style="display: none; margin-top: 0.4rem;" role="alert"></span>
+            <div id="cupon-aplicado-badge" style="display: none; margin-top: 0.5rem; justify-content: space-between; align-items: center; font-size: var(--tam-pequeno); background: rgba(172, 213, 80, 0.15); border: 1px solid var(--color-acento); padding: 0.25rem 0.5rem; border-radius: var(--radio-sm);">
+              <span id="cupon-activo-texto" style="color: var(--color-acento); font-weight: 600;"></span>
+              <button type="button" id="btn-remover-cupon" style="background: none; border: none; color: var(--color-error); cursor: pointer; font-weight: 700;">✕</button>
+            </div>
+          </div>
+
+          <!-- Filas de totales calculados -->
+          <div class="resumen-pedido__fila">
+            <span>Subtotal:</span>
+            <span id="carrito-subtotal">$0</span>
+          </div>
+
+          <div class="resumen-pedido__fila">
+            <span>Descuento aplicado:</span>
+            <span id="carrito-descuento" style="color: var(--color-acento);">-$0</span>
+          </div>
+
+          <div class="resumen-pedido__fila resumen-pedido__fila--total">
+            <span>Total a Pagar:</span>
+            <span id="carrito-total">$0</span>
+          </div>
+
+          <a href="checkout.html" id="btn-ir-checkout" class="boton-primario" style="display: flex; width: 100%; margin-top: var(--espacio-md);">
+            Continuar al Checkout
+          </a>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================== PIE DE PÁGINA ===================== -->
+  <footer class="pie-sitio">
+    <div class="contenedor">
+      <div>
+        <h2>GameHub Store</h2>
+        <p>Tu tienda gamer de confianza. DSY1104 — Proyecto EP1.</p>
+      </div>
+
+      <nav aria-label="Enlaces de navegación del pie de página">
+        <h2>Navegación</h2>
+        <ul class="pie-sitio__enlaces">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="carrito.html">Carrito</a></li>
+          <li><a href="checkout.html">Checkout</a></li>
+          <li><a href="ordenes.html">Mis pedidos</a></li>
+        </ul>
+      </nav>
+
+      <div>
+        <h2>Contacto</h2>
+        <ul class="pie-sitio__enlaces">
+          <li><a href="mailto:contacto@gamehubstore.cl">contacto@gamehubstore.cl</a></li>
+          <li><a href="tel:+56220000000">+56 2 2000 0000</a></li>
+        </ul>
+      </div>
+
+      <p class="pie-sitio__copyright">© 2026 GameHub Store. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts modulares -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Inicializador específico para la vista del carrito
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof renderizarVistaCarrito === "function") {
+        renderizarVistaCarrito();
+      }
+    });
+  </script>
+</body>
+</html>

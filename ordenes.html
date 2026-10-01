@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameHub Store — Mis Pedidos y Garantías</title>
+  <meta name="description" content="Revisa el estado de tus compras gamer, seguimiento de despachos y solicitudes de garantía técnica." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <a class="saltar-enlace" href="#contenido-principal">Saltar al contenido principal</a>
+
+  <!-- ===================== ENCABEZADO ===================== -->
+  <header class="cabecera-sitio">
+    <div class="contenedor">
+      <a class="marca" href="index.html">
+        Game<span class="marca__acento">Hub</span> Store
+      </a>
+
+      <button type="button" class="boton-menu" id="botonMenu" aria-expanded="false" aria-controls="navPrincipal">
+        <span aria-hidden="true">☰</span>
+        <span>Menú</span>
+      </button>
+
+      <nav class="nav-principal" id="navPrincipal" aria-label="Navegación principal">
+        <ul class="nav-principal__lista">
+          <li><a class="nav-principal__enlace" href="index.html">Inicio</a></li>
+          <li><a class="nav-principal__enlace" href="catalogo.html">Catálogo</a></li>
+          <li><a class="nav-principal__enlace" href="carrito.html">Carrito</a></li>
+          <li><a class="nav-principal__enlace" href="checkout.html">Checkout</a></li>
+          <li><a class="nav-principal__enlace" href="ordenes.html" aria-current="page">Mis pedidos</a></li>
+        </ul>
+      </nav>
+
+      <div class="acciones-cabecera">
+        <a class="icono-carrito" href="carrito.html" aria-label="Ver carrito de compras">
+          <span aria-hidden="true">🛒</span>
+          <span>Carrito</span>
+          <span class="icono-carrito__contador" aria-hidden="true">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== CONTENIDO PRINCIPAL ===================== -->
+  <main id="contenido-principal" class="seccion">
+    <div class="contenedor">
+      <h1>Historial de Pedidos y Post-Venta</h1>
+      <p>Revisa el estado de tus compras recientes, el seguimiento de tus paquetes o gestiona una garantía técnica.</p>
+
+      <!-- ----- Sección 1: Listado de órdenes ----- -->
+      <section aria-labelledby="titulo-mis-ordenes" style="margin-bottom: var(--espacio-xl);">
+        <h2 id="titulo-mis-ordenes">Tus compras recientes</h2>
+
+        <div style="display: flex; flex-direction: column; gap: var(--espacio-md);">
+
+          <!-- Orden 1 -->
+          <article class="tarjeta-producto" style="padding: var(--espacio-md);">
+            <div class="flex-entre" style="border-bottom: 1px solid var(--color-borde); padding-bottom: var(--espacio-sm); margin-bottom: var(--espacio-sm);">
+              <div>
+                <strong style="color: var(--color-texto-alto); font-size: 1.1rem;">Orden #GH-742910</strong>
+                <p style="margin: 0; font-size: var(--tam-pequeno); color: var(--color-texto-tenue);">Fecha de compra: 15 de Agosto, 2026</p>
+              </div>
+              <div>
+                <span style="display: inline-block; background-color: rgba(172, 213, 80, 0.15); color: var(--color-acento); padding: 0.25rem 0.6rem; border-radius: var(--radio-sm); font-weight: 700; font-size: var(--tam-pequeno);">
+                  ✓ Entregado
+                </span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--espacio-sm);">
+              <div>
+                <p style="margin: 0; font-weight: 600;">1x Mouse Inalámbrico RGB Pro</p>
+                <p style="margin: 0; font-size: var(--tam-pequeno); color: var(--color-texto-tenue);">Seguimiento BlueExpress: <strong>BX-99401248</strong></p>
+              </div>
+              <div style="text-align: right;">
+                <p class="tarjeta-producto__precio" style="margin: 0;">$29.990</p>
+                <span style="font-size: var(--tam-pequeno); color: var(--color-texto-tenue);">Pago aprobado (Webpay Plus)</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Orden 2 -->
+          <article class="tarjeta-producto" style="padding: var(--espacio-md);">
+            <div class="flex-entre" style="border-bottom: 1px solid var(--color-borde); padding-bottom: var(--espacio-sm); margin-bottom: var(--espacio-sm);">
+              <div>
+                <strong style="color: var(--color-texto-alto); font-size: 1.1rem;">Orden #GH-881204</strong>
+                <p style="margin: 0; font-size: var(--tam-pequeno); color: var(--color-texto-tenue);">Fecha de compra: 02 de Septiembre, 2026</p>
+              </div>
+              <div>
+                <span style="display: inline-block; background-color: rgba(102, 192, 244, 0.15); color: var(--color-primario); padding: 0.25rem 0.6rem; border-radius: var(--radio-sm); font-weight: 700; font-size: var(--tam-pequeno);">
+                  🚚 En Tránsito a Domicilio
+                </span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--espacio-sm);">
+              <div>
+                <p style="margin: 0; font-weight: 600;">1x Teclado Mecánico TKL RGB</p>
+                <p style="margin: 0; font-size: var(--tam-pequeno); color: var(--color-texto-tenue);">Seguimiento Starken: <strong>ST-11823901</strong></p>
+              </div>
+              <div style="text-align: right;">
+                <p class="tarjeta-producto__precio" style="margin: 0;">$59.990</p>
+                <span style="font-size: var(--tam-pequeno); color: var(--color-texto-tenue);">Pago aprobado (Transferencia)</span>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ----- Sección 2: Formulario de Garantía Legal ----- -->
+      <section aria-labelledby="titulo-garantia">
+        <div style="background-color: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: var(--radio-lg); padding: var(--espacio-lg); max-width: 700px;">
+          <h2 id="titulo-garantia">Solicitud de Garantía Técnica y Devolución</h2>
+          <p>
+            Si tu hardware presenta fallas técnicas, ingresa los datos a continuación. El plazo máximo de cobertura legal es de 180 días corridos a partir de la entrega.
+          </p>
+
+          <form id="formulario-garantia" novalidate>
+            
+            <div class="campo-formulario">
+              <label for="garantia-fecha">Fecha de recepción del producto *</label>
+              <input 
+                type="date" 
+                id="garantia-fecha" 
+                name="fecha" 
+                aria-describedby="ayuda-fecha error-fecha" 
+                required 
+              />
+              <span id="ayuda-fecha" class="texto-ayuda">Fecha en la que recibiste físicamente el paquete.</span>
+              <span id="error-fecha" class="texto-error" style="display: none;" role="alert"></span>
+            </div>
+
+            <div class="campo-formulario">
+              <label for="garantia-motivo">Motivo de la solicitud *</label>
+              <select id="garantia-motivo" name="motivo" aria-describedby="error-motivo" required>
+                <option value="">Selecciona el motivo...</option>
+                <option value="falla-fabrica">Falla técnica de fábrica o mal funcionamiento</option>
+                <option value="incompleto">Producto llegó incompleto o con daño físico por transporte</option>
+                <option value="incompatibilidad">Problema crítico de compatibilidad de componentes</option>
+              </select>
+              <span id="error-motivo" class="texto-error" style="display: none;" role="alert"></span>
+            </div>
+
+            <div class="campo-formulario">
+              <label for="garantia-detalle">Descripción detallada de la falla *</label>
+              <textarea 
+                id="garantia-detalle" 
+                name="detalle" 
+                rows="4" 
+                placeholder="Indica qué pruebas realizaste y cuál es la anomalía (mínimo 20 caracteres)..." 
+                aria-describedby="ayuda-detalle error-detalle" 
+                required
+              ></textarea>
+              <span id="ayuda-detalle" class="texto-ayuda">Describe el problema con claridad para agilizar la revisión técnica.</span>
+              <span id="error-detalle" class="texto-error" style="display: none;" role="alert"></span>
+            </div>
+
+            <button type="submit" class="boton-primario">
+              Ingresar Solicitud de Garantía
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ===================== PIE DE PÁGINA ===================== -->
+  <footer class="pie-sitio">
+    <div class="contenedor">
+      <div>
+        <h2>GameHub Store</h2>
+        <p>Tu tienda gamer de confianza. DSY1104 — Proyecto EP1.</p>
+      </div>
+
+      <nav aria-label="Enlaces de navegación del pie de página">
+        <h2>Navegación</h2>
+        <ul class="pie-sitio__enlaces">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="carrito.html">Carrito</a></li>
+          <li><a href="checkout.html">Checkout</a></li>
+          <li><a href="ordenes.html">Mis pedidos</a></li>
+        </ul>
+      </nav>
+
+      <div>
+        <h2>Contacto</h2>
+        <ul class="pie-sitio__enlaces">
+          <li><a href="mailto:contacto@gamehubstore.cl">contacto@gamehubstore.cl</a></li>
+          <li><a href="tel:+56220000000">+56 2 2000 0000</a></li>
+        </ul>
+      </div>
+
+      <p class="pie-sitio__copyright">© 2026 GameHub Store. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts modulares -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/validaciones.js"></script>
+</body>
+</html>
