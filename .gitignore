@@ -1,0 +1,9 @@
+# Dependencias
+node_modules/
+
+# Build de producción
+dist/
+
+# Archivos locales
+*.local
+.DS_Store
