@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameHub Store — Tu tienda gamer de confianza</title>
+  <meta name="description" content="GameHub Store: consolas, periféricos y accesorios gamer. Catálogo, ofertas y despacho a todo Chile." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <a class="saltar-enlace" href="#contenido-principal">Saltar al contenido principal</a>
+
+  <!-- ===================== ENCABEZADO ===================== -->
+  <header class="cabecera-sitio">
+    <div class="contenedor">
+      <a class="marca" href="index.html">
+        Game<span class="marca__acento">Hub</span> Store
+      </a>
+
+      <button type="button" class="boton-menu" id="botonMenu" aria-expanded="false" aria-controls="navPrincipal">
+        <span aria-hidden="true">☰</span>
+        <span>Menú</span>
+      </button>
+
+      <nav class="nav-principal" id="navPrincipal" aria-label="Navegación principal">
+        <ul class="nav-principal__lista">
+          <li><a class="nav-principal__enlace" href="index.html" aria-current="page">Inicio</a></li>
+          <li><a class="nav-principal__enlace" href="catalogo.html">Catálogo</a></li>
+          <li><a class="nav-principal__enlace" href="carrito.html">Carrito</a></li>
+          <li><a class="nav-principal__enlace" href="checkout.html">Checkout</a></li>
+          <li><a class="nav-principal__enlace" href="ordenes.html">Mis pedidos</a></li>
+        </ul>
+      </nav>
+
+      <div class="acciones-cabecera">
+        <a class="icono-carrito" href="carrito.html" aria-label="Ver carrito de compras, 3 productos">
+          <span aria-hidden="true">🛒</span>
+          <span>Carrito</span>
+          <span class="icono-carrito__contador" aria-hidden="true">3</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== CONTENIDO PRINCIPAL ===================== -->
+  <main id="contenido-principal">
+
+    <!-- ----- Hero con video de producto ----- -->
+    <section class="seccion seccion-hero" aria-labelledby="titulo-hero">
+      <div class="contenedor grid-hero" style="display:grid; grid-template-columns: 1.1fr 1fr; gap: var(--espacio-lg); align-items:center;">
+        <div>
+          <h1 id="titulo-hero">Equípate como los pros. Juega sin límites.</h1>
+          <p>
+            En GameHub Store encuentras consolas, periféricos y accesorios gamer con despacho a todo Chile
+            y garantía oficial. Explora el catálogo y arma tu setup ideal.
+          </p>
+          <div class="flex-entre" style="justify-content:flex-start; gap: var(--espacio-sm);">
+            <a class="boton-primario" href="catalogo.html">Ver catálogo</a>
+            <a class="boton-secundario" href="#destacados">Ver destacados</a>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="visualmente-oculto">Video de presentación de producto</h2>
+          <video
+            controls
+            preload="metadata"
+            poster="assets/img/poster-setup-gamer.jpg"
+            style="width:100%; border-radius: var(--radio-lg); border:1px solid var(--color-borde);"
+            aria-label="Video demostrativo de un setup gamer con teclado, mouse y audífonos GameHub"
+          >
+            <source src="assets/video/gamehub-setup-demo.mp4" type="video/mp4" />
+            <track kind="captions" src="assets/video/gamehub-setup-demo.es.vtt" srclang="es" label="Español" />
+            Tu navegador no soporta la reproducción de video.
+            Puedes <a href="assets/video/gamehub-setup-demo.mp4">descargar el video de demostración aquí</a>.
+          </video>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----- Categorías ----- -->
+    <section class="seccion" aria-labelledby="titulo-categorias">
+      <div class="contenedor">
+        <h2 id="titulo-categorias">Compra por categoría</h2>
+        <div class="grid-auto">
+
+          <article class="tarjeta-producto">
+            <img class="tarjeta-producto__imagen" src="assets/img/categoria-consolas.jpg" alt="Consola de videojuegos de última generación junto a dos controles" />
+            <div class="tarjeta-producto__cuerpo">
+              <p class="tarjeta-producto__categoria">Categoría</p>
+              <h3 class="tarjeta-producto__titulo">
+                <a href="catalogo.html">Consolas</a>
+              </h3>
+              <p>Las últimas generaciones, con stock y despacho inmediato.</p>
+            </div>
+          </article>
+
+          <article class="tarjeta-producto">
+            <img class="tarjeta-producto__imagen" src="assets/img/categoria-perifericos.jpg" alt="Teclado mecánico con retroiluminación RGB y mouse gamer" />
+            <div class="tarjeta-producto__cuerpo">
+              <p class="tarjeta-producto__categoria">Categoría</p>
+              <h3 class="tarjeta-producto__titulo">
+                <a href="catalogo.html">Periféricos</a>
+              </h3>
+              <p>Teclados, mouse y audífonos pensados para largas sesiones de juego.</p>
+            </div>
+          </article>
+
+          <article class="tarjeta-producto">
+            <img class="tarjeta-producto__imagen" src="assets/img/categoria-sillas.jpg" alt="Silla ergonómica gamer con diseño deportivo" />
+            <div class="tarjeta-producto__cuerpo">
+              <p class="tarjeta-producto__categoria">Categoría</p>
+              <h3 class="tarjeta-producto__titulo">
+                <a href="catalogo.html">Sillas y mobiliario</a>
+              </h3>
+              <p>Comodidad y ergonomía certificada para tu espacio de juego.</p>
+            </div>
+          </article>
+
+          <article class="tarjeta-producto">
+            <img class="tarjeta-producto__imagen" src="assets/img/categoria-accesorios.jpg" alt="Accesorios gamer variados sobre una mesa" />
+            <div class="tarjeta-producto__cuerpo">
+              <p class="tarjeta-producto__categoria">Categoría</p>
+              <h3 class="tarjeta-producto__titulo">
+                <a href="catalogo.html">Accesorios</a>
+              </h3>
+              <p>Todo lo que necesitas para completar tu experiencia gamer.</p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ----- Productos destacados ----- -->
+    <section class="seccion" id="destacados" aria-labelledby="titulo-destacados">
+      <div class="contenedor">
+        <div class="flex-entre">
+          <h2 id="titulo-destacados">Destacados de la semana</h2>
+          <a class="boton-secundario" href="catalogo.html">Ver todos</a>
+        </div>
+
+        <!-- Inyección dinámica desde js/app.js (evita artículos hardcodeados) -->
+        <div class="grid-auto" id="destacados-grid"></div>
+      </div>
+    </section>
+
+    <!-- ----- Confianza / beneficios ----- -->
+    <section class="seccion" aria-labelledby="titulo-beneficios">
+      <div class="contenedor">
+        <h2 id="titulo-beneficios">Por qué comprar en GameHub Store</h2>
+        <div class="grid-auto">
+          <article class="tarjeta-producto">
+            <div class="tarjeta-producto__cuerpo">
+              <h3 class="tarjeta-producto__titulo">Despacho a todo Chile</h3>
+              <p>Seguimiento de tu pedido desde la compra hasta la puerta de tu casa.</p>
+            </div>
+          </article>
+          <article class="tarjeta-producto">
+            <div class="tarjeta-producto__cuerpo">
+              <h3 class="tarjeta-producto__titulo">Garantía oficial</h3>
+              <p>Todos los productos cuentan con garantía del fabricante.</p>
+            </div>
+          </article>
+          <article class="tarjeta-producto">
+            <div class="tarjeta-producto__cuerpo">
+              <h3 class="tarjeta-producto__titulo">Pago seguro</h3>
+              <p>Múltiples medios de pago con checkout protegido.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== PIE DE PÁGINA ===================== -->
+  <footer class="pie-sitio">
+    <div class="contenedor">
+      <div>
+        <h2>GameHub Store</h2>
+        <p>Tu tienda gamer de confianza. DSY1104 — Proyecto EP1.</p>
+      </div>
+
+      <nav aria-label="Enlaces de navegación del pie de página">
+        <h2>Navegación</h2>
+        <ul class="pie-sitio__enlaces">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="carrito.html">Carrito</a></li>
+          <li><a href="checkout.html">Checkout</a></li>
+          <li><a href="ordenes.html">Mis pedidos</a></li>
+        </ul>
+      </nav>
+
+      <div>
+        <h2>Contacto</h2>
+        <ul class="pie-sitio__enlaces">
+          <li><a href="mailto:contacto@gamehubstore.cl">contacto@gamehubstore.cl</a></li>
+          <li><a href="tel:+56220000000">+56 2 2000 0000</a></li>
+        </ul>
+      </div>
+
+      <p class="pie-sitio__copyright">© 2026 GameHub Store. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
