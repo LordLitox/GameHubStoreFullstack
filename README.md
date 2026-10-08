@@ -1,5 +1,5 @@
 GameHub Store
-
+  
    
 Plataforma web de comercio electrónico orientada a la venta de hardware, periféricos y accesorios gamer de alto rendimiento. Proyecto desarrollado como base de interfaz y lógica cliente para la asignatura Desarrollo FullStack II (DSY1104).  Descripción del ProyectoGameHub Store simula un flujo completo de adquisición de productos tecnológicos sin requerir APIs externas ni bases de datos activas en su primera fase (EP1). La navegación entre vistas, el filtrado interactivo, el cálculo comercial del carrito y la persistencia de datos se resuelven íntegramente en el cliente mediante JavaScript nativo y almacenamiento local (localStorage).
    
