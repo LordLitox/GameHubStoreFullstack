@@ -13,9 +13,9 @@ persistencia vía `localStorage`.
 
 La versión vigente del sitio es la aplicación **React 18 + Vite 5**: las 6
 vistas del sitio original ya están migradas, con diseño responsivo sobre
-**Bootstrap 5.3** y 81 pruebas automatizadas en verde. El sitio HTML/CSS/JS
-vanilla de la EP1 se conserva en **`legacy/`** solo como referencia y queda
-pendiente de eliminar; el proceso seguido está documentado en
+**Bootstrap 5.3** y 81 pruebas automatizadas en verde. La migración está
+**cerrada**: el sitio HTML/CSS/JS vanilla de la EP1 se eliminó del repositorio
+al completarse, y el proceso seguido queda documentado en
 **[MIGRACION.md](MIGRACION.md)**.
 
 ### Documentación
@@ -36,9 +36,6 @@ npm run test:coverage  # pruebas + reporte de cobertura en coverage/
 npm run build          # build de producción en dist/
 ```
 
-El sitio legacy de la EP1 sigue accesible en
-`http://localhost:5173/legacy/index.html` mientras no se elimine la carpeta.
-
 ### Estructura del repositorio
 
 ```
@@ -50,11 +47,10 @@ GameHubStoreFullstack/
 │   ├── context/             #   Estado global del carrito (useReducer + localStorage)
 │   ├── lib/                 #   Lógica de negocio pura + pruebas unitarias
 │   ├── __tests__/           #   Utilidades de prueba (render con providers, mocks)
-│   ├── data/                #   PRODUCTOS, CUPONES, PERFILES_USUARIO
+│   ├── data/                #   PRODUCTOS, CUPONES
 │   ├── hooks/               #   useTitulo
 │   └── styles.css           #   Tema de marca sobre Bootstrap (paleta y componentes)
 ├── public/assets/           # Imágenes y video (ver LEEME.md dentro)
-├── legacy/                  # Sitio vanilla de la EP1 (referencia, se elimina)
 ├── ERS.md                   # Especificación de requisitos de software
 ├── COBERTURA.md             # Documento de cobertura de la batería de pruebas
 └── MIGRACION.md             # Guía paso a paso de la migración para el equipo

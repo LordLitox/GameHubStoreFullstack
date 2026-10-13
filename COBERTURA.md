@@ -86,10 +86,8 @@ de los módulos que hoy **no tienen cobertura**:
 | `pages/NoEncontrada.jsx` | Página 404. |
 | `components/Layout.jsx` | Layout compartido (cabecera + contenido + pie). |
 | `components/PieSitio.jsx` | Pie de página. |
-| `components/PaginaEnMigracion.jsx` | Marcador de páginas en migración. |
-| `data/perfiles.js` | Perfiles de usuario (dato heredado, sin uso en la app React). |
 
-En total, **12 de los 22 módulos** de `src/` quedan dentro del reporte y **10
+En total, **12 de los 20 módulos** de `src/` quedan dentro del reporte y **8
 quedan fuera**. Las cifras de la sección 3 describen únicamente a los 12
 módulos ejercitados; la cobertura del proyecto completo es menor y por eso el
 listado anterior debe leerse junto con esa tabla.

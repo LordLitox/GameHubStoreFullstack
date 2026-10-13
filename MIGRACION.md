@@ -17,7 +17,7 @@ de commits del repositorio.
 | 1. Scaffold Vite + React + Router | ✅ Listo | 6 rutas + 404, layout compartido, CSS original reutilizado |
 | 2. Lógica extraída a módulos puros | ✅ Listo | `src/lib/` + `src/data/`, 81 pruebas con Karma + Jasmine |
 | 3. Migración de páginas | ✅ Listo | Las 6 vistas migradas; diseño responsivo con Bootstrap 5.3 |
-| 4. Limpieza final | ⏳ Pendiente | Borrar `legacy/` cuando se valide la entrega |
+| 4. Limpieza final | ✅ Listo | `legacy/` eliminado en la rama `feat/limpieza-final` (2026-10-13) |
 
 ## Cómo trabajar
 
@@ -50,7 +50,7 @@ src/
 ├── main.jsx                  # Punto de entrada (Router + CarritoProvider + CSS)
 ├── App.jsx                   # Definición de las 6 rutas + 404
 ├── styles.css                # CSS del sitio original (reutilizado tal cual)
-├── data/                     # Datos simulados (PRODUCTOS, CUPONES, PERFILES)
+├── data/                     # Datos simulados (PRODUCTOS, CUPONES)
 ├── lib/                      # Lógica de negocio PURA (sin DOM ni React)
 │   ├── carrito.js            #   stock, agregar/quitar, cantidades
 │   ├── cupones.js            #   vigencia, topes, totales
@@ -65,8 +65,7 @@ src/
 │   ├── Layout.jsx            #   cabecera + <Outlet> + pie
 │   ├── Cabecera.jsx          #   menú, marca, contador de carrito
 │   ├── PieSitio.jsx
-│   ├── TarjetaProducto.jsx   #   PATRÓN DE REFERENCIA para migrar
-│   └── PaginaEnMigracion.jsx #   placeholder mientras una página no está lista
+│   └── TarjetaProducto.jsx   #   PATRÓN DE REFERENCIA para migrar
 └── pages/                    # Una página por ruta
 ```
 
