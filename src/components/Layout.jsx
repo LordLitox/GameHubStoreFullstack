@@ -8,18 +8,18 @@ import PieSitio from "./PieSitio.jsx";
  */
 export default function Layout() {
   return (
-    <>
+    <div className="d-flex flex-column min-vh-100">
       <a className="saltar-enlace" href="#contenido-principal">
         Saltar al contenido principal
       </a>
 
       <Cabecera />
 
-      <main id="contenido-principal">
+      <main id="contenido-principal" className="flex-grow-1">
         <Outlet />
       </main>
 
       <PieSitio />
-    </>
+    </div>
   );
 }
