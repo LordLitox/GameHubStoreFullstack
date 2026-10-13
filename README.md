@@ -20,10 +20,11 @@ tareas pendientes y las reglas de conversión HTML→JSX están en
 ### Comandos
 
 ```bash
-npm install     # instalar dependencias (primera vez)
-npm run dev     # aplicación React en http://localhost:5173
-npm test        # pruebas unitarias y de componentes (Karma + Jasmine)
-npm run build   # build de producción en dist/
+npm install         # instalar dependencias (primera vez)
+npm run dev         # aplicación React en http://localhost:5173
+npm test            # pruebas unitarias y de componentes (Karma + Jasmine)
+npm run test:coverage  # pruebas + reporte de cobertura en coverage/
+npm run build       # build de producción en dist/
 ```
 
 El sitio legacy queda accesible durante el desarrollo en
@@ -45,6 +46,7 @@ GameHubStoreFullstack/
 │   └── styles.css           #   Hoja de estilos del sitio original (reutilizada)
 ├── public/assets/           # Imágenes y video (ver LEEME.md dentro)
 ├── legacy/                  # Sitio vanilla original (EP1), se elimina al terminar
+├── COBERTURA.md             # Documento de cobertura de la batería de pruebas
 └── MIGRACION.md             # Guía paso a paso de la migración para el equipo
 ```
 
