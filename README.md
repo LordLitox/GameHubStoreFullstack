@@ -22,7 +22,7 @@ tareas pendientes y las reglas de conversión HTML→JSX están en
 ```bash
 npm install     # instalar dependencias (primera vez)
 npm run dev     # aplicación React en http://localhost:5173
-npm test        # pruebas unitarias de la lógica de negocio (Vitest)
+npm test        # pruebas unitarias de la lógica de negocio (Karma + Jasmine)
 npm run build   # build de producción en dist/
 ```
 
@@ -59,7 +59,7 @@ GameHubStoreFullstack/
   `localStorage` (claves compartidas entre la versión legacy y React).
 - **Motor de cupones y totales:** descuentos por porcentaje con topes
   máximos en pesos, fechas de caducidad y totales nunca negativos, cubierto
-  por 46 pruebas unitarias con Vitest.
+  por 46 pruebas unitarias con Jasmine y Karma.
 - **Formularios con validación en tiempo real:** validación nativa en
   `blur`, `input` y `submit` en checkout y solicitud de garantías
   post-venta, con retroalimentación visual e iconográfica.

@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "karma start karma.conf.cjs --single-run",
+    "test:watch": "karma start karma.conf.cjs"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -17,7 +17,11 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^5.4.11",
-    "vitest": "^2.1.8"
+    "jasmine-core": "^7.0.2",
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-jasmine": "^5.1.0",
+    "karma-vite": "^1.0.5",
+    "vite": "^5.4.11"
   }
 }
