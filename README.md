@@ -22,7 +22,7 @@ tareas pendientes y las reglas de conversión HTML→JSX están en
 ```bash
 npm install     # instalar dependencias (primera vez)
 npm run dev     # aplicación React en http://localhost:5173
-npm test        # pruebas unitarias de la lógica de negocio (Karma + Jasmine)
+npm test        # pruebas unitarias y de componentes (Karma + Jasmine)
 npm run build   # build de producción en dist/
 ```
 
@@ -39,6 +39,7 @@ GameHubStoreFullstack/
 │   ├── components/          #   Layout, Cabecera, PieSitio, TarjetaProducto...
 │   ├── context/             #   Estado global del carrito (useReducer + localStorage)
 │   ├── lib/                 #   Lógica de negocio pura + pruebas unitarias
+│   ├── __tests__/           #   Utilidades de prueba (render con providers, mocks)
 │   ├── data/                #   PRODUCTOS, CUPONES, PERFILES_USUARIO
 │   ├── hooks/               #   useTitulo
 │   └── styles.css           #   Hoja de estilos del sitio original (reutilizada)
@@ -59,7 +60,9 @@ GameHubStoreFullstack/
   `localStorage` (claves compartidas entre la versión legacy y React).
 - **Motor de cupones y totales:** descuentos por porcentaje con topes
   máximos en pesos, fechas de caducidad y totales nunca negativos, cubierto
-  por 46 pruebas unitarias con Jasmine y Karma.
+  por 81 pruebas con Jasmine y Karma: lógica de negocio, componentes
+  (`TarjetaProducto`, `Cabecera`), contexto del carrito y páginas
+  (`Carrito`, `Checkout`) con mocks de `localStorage`, `alert` y `Math.random`.
 - **Formularios con validación en tiempo real:** validación nativa en
   `blur`, `input` y `submit` en checkout y solicitud de garantías
   post-venta, con retroalimentación visual e iconográfica.
