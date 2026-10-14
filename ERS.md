@@ -27,7 +27,7 @@ del curso: define **qué** debe hacer el sistema, bajo **qué restricciones** y
 
 El documento describe la aplicación React + Vite entregada en la Evaluación
 Parcial 2, resultado de la migración del sitio HTML/CSS/JS vanilla desarrollado
-en la Evaluación Parcial 1 (conservado en `legacy/` como referencia).
+en la Evaluación Parcial 1 (cuyo proceso queda registrado en `MIGRACION.md`).
 
 ### 1.2 Alcance
 
@@ -72,7 +72,6 @@ y buscador de texto libre. Estos puntos se detallan en el anexo C.
 | Guía de migración (proceso EP1 → EP2, histórica) | [`MIGRACION.md`](MIGRACION.md) |
 | Documento de cobertura de pruebas | [`COBERTURA.md`](COBERTURA.md) |
 | Configuración de pruebas | `karma.conf.cjs` |
-| Sitio original de la EP1 (referencia) | `legacy/` |
 | WCAG 2.1 — nivel AA | https://www.w3.org/TR/WCAG21/ |
 | Bootstrap 5.3 | https://getbootstrap.com/docs/5.3/ |
 
@@ -93,7 +92,7 @@ Se compila como un sitio estático (`npm run build` → `dist/`) y se ejecuta
 | Navegación | React Router 6 | 6 rutas + ruta comodín 404, sin recargas. |
 | Estado global | React Context + `useReducer` | Carrito y cupón activo compartidos por todas las vistas. |
 | Lógica de negocio | Módulos puros en `src/lib/` | Stock, precios, cupones, totales y validaciones (sin React ni DOM). |
-| Datos | Módulos estáticos en `src/data/` | Productos, cupones y perfiles simulados. |
+| Datos | Módulos estáticos en `src/data/` | Productos y cupones simulados. |
 | Estilos | Bootstrap 5.3 + `src/styles.css` | Sistema de rejilla responsivo y tema de marca propio. |
 | Pruebas | Karma + Jasmine + Testing Library | 81 pruebas sobre lógica, componentes y páginas. |
 
@@ -121,8 +120,7 @@ distintos roles según el momento del flujo:
 | Comprador | Armar el pedido, aplicar descuentos y pagar. | Carrito, Checkout |
 | Cliente post-venta | Revisar pedidos y ejercer la garantía legal. | Mis pedidos |
 
-No existe registro, inicio de sesión ni perfil de usuario en esta entrega
-(`src/data/perfiles.js` es un dato heredado sin uso en la aplicación React).
+No existe registro, inicio de sesión ni perfil de usuario en esta entrega.
 
 ### 2.4 Restricciones
 
@@ -400,11 +398,10 @@ GameHubStoreFullstack/
 │   ├── components/          # Layout, Cabecera, PieSitio, TarjetaProducto...
 │   ├── context/             # CarritoProvider (useReducer + localStorage)
 │   ├── lib/                 # Lógica de negocio pura + pruebas unitarias
-│   ├── data/                # PRODUCTOS, CUPONES, PERFILES_USUARIO
+│   ├── data/                # PRODUCTOS, CUPONES
 │   ├── hooks/               # useTitulo
 │   └── styles.css           # Tema de marca sobre Bootstrap
 ├── public/assets/           # Imágenes y video
-├── legacy/                  # Sitio EP1 (referencia histórica)
 ├── ERS.md                   # Este documento
 ├── COBERTURA.md             # Documento de cobertura de pruebas
 ├── MIGRACION.md             # Guía histórica de la migración a React
@@ -415,9 +412,7 @@ GameHubStoreFullstack/
 
 | Elemento | Descripción |
 | --- | --- |
-| `legacy/` | Eliminar el sitio vanilla de la EP1 una vez validada la entrega. |
 | Pruebas de render de páginas | Agregar *smoke tests* para `Inicio`, `Catalogo`, `Detalle`, `Ordenes` y `NoEncontrada` para que entren al reporte de cobertura. |
-| Pruebas con fechas deterministas | Fijar la fecha en las pruebas de cupones y garantías para evitar fragilidad temporal. |
 | Video de demostración | Publicar `gamehub-setup-demo.mp4` y sus subtítulos `.es.vtt`. |
 | Backend | Persistir catálogo, órdenes y usuarios en un servicio real. |
 
