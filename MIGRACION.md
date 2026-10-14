@@ -1,26 +1,30 @@
 # Guía de migración a React — GameHub Store
 
-Este documento explica cómo estamos migrando el sitio de HTML/CSS/JS vanilla
+> **Documento histórico.** La migración ya finalizó: las 6 vistas están
+> migradas a React sobre Bootstrap. Este documento se conserva como registro
+> del proceso y del criterio de conversión HTML→JSX que siguió el equipo.
+
+Este documento explica cómo migramos el sitio de HTML/CSS/JS vanilla
 (carpeta `legacy/`) a una aplicación React, **página por página y en ramas
-`feature/` separadas**, para que el avance quede reflejado en el historial
+`feat/` separadas**, para que el avance quede reflejado en el historial
 de commits del repositorio.
 
 ## Estado del plan
 
 | Fase | Estado | Detalle |
 | --- | --- | --- |
-| 0. Sitio vanilla movido a `legacy/` | ✅ Listo | El sitio original sigue funcionando en `/legacy/*.html` |
+| 0. Sitio vanilla movido a `legacy/` | ✅ Listo | El sitio original quedó como referencia en `/legacy/*.html` |
 | 1. Scaffold Vite + React + Router | ✅ Listo | 6 rutas + 404, layout compartido, CSS original reutilizado |
-| 2. Lógica extraída a módulos puros | ✅ Listo | `src/lib/` + `src/data/`, 46 tests con Vitest |
-| 3. Migración de páginas | 🔄 En curso | **Inicio ya está migrada** (sirve de patrón). Quedan 5 |
-| 4. Limpieza final | ⏳ Pendiente | Borrar `legacy/` cuando las 6 páginas estén migradas |
+| 2. Lógica extraída a módulos puros | ✅ Listo | `src/lib/` + `src/data/`, 81 pruebas con Karma + Jasmine |
+| 3. Migración de páginas | ✅ Listo | Las 6 vistas migradas; diseño responsivo con Bootstrap 5.3 |
+| 4. Limpieza final | ⏳ Pendiente | Borrar `legacy/` cuando se valide la entrega |
 
 ## Cómo trabajar
 
 ```bash
 npm install        # solo la primera vez
 npm run dev        # servidor de desarrollo (http://localhost:5173)
-npm test           # pruebas unitarias (Vitest)
+npm test           # pruebas unitarias y de componentes (Karma + Jasmine)
 npm run build      # build de producción
 ```
 
@@ -29,9 +33,9 @@ Flujo de ramas (igual que acordamos como equipo):
 ```bash
 git checkout desarrollo
 git pull origin desarrollo
-git checkout -b feature/migrar-catalogo     # una rama POR página/cambio
+git checkout -b feat/migrar-catalogo        # una rama POR página/cambio
 # ... trabajar, hacer commits pequeños ...
-git push -u origin feature/migrar-catalogo
+git push -u origin feat/migrar-catalogo
 # abrir Pull Request a "desarrollo" y pedir revisión a un compañero
 ```
 
@@ -52,7 +56,7 @@ src/
 │   ├── cupones.js            #   vigencia, topes, totales
 │   ├── validaciones.js       #   reglas de formularios (checkout/garantía)
 │   ├── formato.js            #   formatearPesosCLP
-│   └── __tests__/            #   pruebas Vitest (46 tests)
+│   └── __tests__/            #   pruebas unitarias (Karma + Jasmine)
 ├── context/
 │   └── CarritoContext.jsx    # Estado global del carrito + localStorage
 ├── hooks/
@@ -101,16 +105,19 @@ referencia. El proceso para cada página es:
 Las clases CSS se mantienen **idénticas**: el `styles.css` original ya está
 global en la app, no hay que escribir estilos nuevos.
 
-## Reparto de páginas pendientes (Fase 3)
+## Reparto de páginas (Fase 3 — completada)
 
-| Integrante | Página | Rama sugerida | Dificultad | Notas |
+Este fue el reparto acordado para migrar las 5 páginas restantes tras Inicio;
+las ramas indicadas ya están fusionadas en `desarrollo`.
+
+| Integrante | Página | Rama | Dificultad | Notas |
 | --- | --- | --- | --- | --- |
-| A | `Catalogo.jsx` | `feature/migrar-catalogo` | Media | Filtros con `useState` + `useMemo` (ver `inicializarFiltrosCatalogo` en `legacy/js/app.js`). Reutiliza `TarjetaProducto`. |
-| B | `Detalle.jsx` | `feature/migrar-detalle` | Media | Lee `?id=X` del legacy → ahora `useParams()`. Incluye selector de cantidad, reseñas y ficha técnica (`especificaciones`). |
-| A | `Carrito.jsx` | `feature/migrar-carrito` | Media-alta | Tabla + botones cantidad (`cambiarCantidad`) + cupones (`aplicarCupon`) + totales (`totales`). OJO: en el legacy `renderizarVistaCarrito` nunca existió (quedó incompleto); acá se construye completa. |
-| B | `Checkout.jsx` | `feature/migrar-checkout` | Media-alta | Formulario con validación en tiempo real usando `src/lib/validaciones.js`. Resumen con `totales` y `items`. Al confirmar: `vaciar()` + navegar a `/ordenes`. |
-| C | `Ordenes.jsx` | `feature/migrar-ordenes` | Media | Historial simulado + formulario de garantía (`validarFechaGarantia`, `validarDetalleGarantia`). |
-| C | Assets multimedia | `feature/agregar-assets-multimedia` | Baja | Ver `public/assets/LEEME.md`: faltan las 9 imágenes, el video y los subtítulos. |
+| A | `Catalogo.jsx` | `feat/migrar-catalogo` | Media | Filtros con `useState` + `useMemo` (ver `inicializarFiltrosCatalogo` en `legacy/js/app.js`). Reutiliza `TarjetaProducto`. |
+| B | `Detalle.jsx` | `feat/migrar-detalle` | Media | Lee `?id=X` del legacy → ahora `useParams()`. Incluye selector de cantidad, reseñas y ficha técnica (`especificaciones`). |
+| A | `Carrito.jsx` | `feat/migrar-carrito` | Media-alta | Tabla + botones cantidad (`cambiarCantidad`) + cupones (`aplicarCupon`) + totales (`totales`). OJO: en el legacy `renderizarVistaCarrito` nunca existió (quedó incompleto); acá se construye completa. |
+| B | `Checkout.jsx` | `feat/migrar-checkout` | Media-alta | Formulario con validación en tiempo real usando `src/lib/validaciones.js`. Resumen con `totales` y `items`. Al confirmar: `vaciar()` + navegar a `/ordenes`. |
+| C | `Ordenes.jsx` | `feat/migrar-ordenes` | Media | Historial simulado + formulario de garantía (`validarFechaGarantia`, `validarDetalleGarantia`). |
+| C | Assets multimedia | `feat/agregar-assets-multimedia` | Baja | Las 9 imágenes ya están en `public/assets/img/`; quedan pendientes el video y los subtítulos (ver `public/assets/video/LEEME.md`). |
 
 El orden recomendado respeta las dependencias: primero Catálogo y Detalle
 (usan `TarjetaProducto`), luego Carrito y Checkout (comparten totales), y
