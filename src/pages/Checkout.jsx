@@ -132,14 +132,14 @@ export default function Checkout() {
 
   const MensajeError = ({ nombreCampo }) =>
     errores[nombreCampo]?.valido === false ? (
-      <span className="texto-error" style={{ display: "flex" }} role="alert">
+      <span className="texto-error mt-1" role="alert">
         {errores[nombreCampo].mensaje}
       </span>
     ) : null;
 
   return (
     <div className="seccion">
-      <div className="contenedor">
+      <div className="container">
         <h1>Finalizar Compra</h1>
         <p>
           Ingresa los datos para el despacho de tus productos gamer y selecciona
@@ -147,201 +147,173 @@ export default function Checkout() {
         </p>
 
         {carritoVacio && (
-          <div className="mensaje-alerta" role="alert">
-            <span className="mensaje-alerta__icono" aria-hidden="true">⚠</span>
-            <div>
-              <strong>Tu carrito está vacío.</strong> Debes agregar productos
-              antes de poder completar el pedido.
-              <p style={{ margin: "0.5rem 0 0 0" }}>
-                <Link className="boton-secundario" to="/catalogo">Ir al catálogo</Link>
-              </p>
-            </div>
+          <div className="alert alert-danger" role="alert">
+            <span aria-hidden="true">⚠</span>{" "}
+            <strong>Tu carrito está vacío.</strong> Debes agregar productos
+            antes de poder completar el pedido.
+            <p className="mt-2 mb-0">
+              <Link className="btn btn-outline-primary" to="/catalogo">Ir al catálogo</Link>
+            </p>
           </div>
         )}
 
-        <div
-          className="grid-hero"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.4fr 1fr",
-            gap: "var(--espacio-lg)",
-            alignItems: "start",
-          }}
-        >
+        <div className="row g-4 align-items-start">
           {/* Formulario de Despacho y Pago */}
-          <form id="formulario-checkout" noValidate onSubmit={manejarSubmit}>
-            <fieldset
-              style={{
-                border: "1px solid var(--color-borde)",
-                borderRadius: "var(--radio-md)",
-                padding: "var(--espacio-md)",
-                marginBottom: "var(--espacio-md)",
-              }}
-            >
-              <legend style={{ color: "var(--color-texto-alto)", fontWeight: 700, padding: "0 var(--espacio-xs)" }}>
-                1. Datos de Despacho
-              </legend>
+          <div className="col-12 col-lg-7">
+            <form id="formulario-checkout" noValidate onSubmit={manejarSubmit}>
+              <fieldset className="border rounded-3 p-3 mb-3">
+                <legend className="float-none w-auto px-1 fs-6 fw-bold text-body-emphasis">
+                  1. Datos de Despacho
+                </legend>
 
-              {/* Nombre */}
-              <div className="campo-formulario">
-                <label htmlFor="checkout-nombre">Nombre y Apellido *</label>
-                <input
-                  type="text"
-                  id="checkout-nombre"
-                  name="nombre"
-                  autoComplete="name"
-                  placeholder="Ej. Constanza Morales"
-                  aria-describedby="ayuda-nombre error-nombre"
-                  {...propsCampo("nombre")}
-                />
-                <span id="ayuda-nombre" className="texto-ayuda">
-                  Nombre de quien recibirá el paquete.
-                </span>
-                <MensajeError nombreCampo="nombre" />
-              </div>
+                {/* Nombre */}
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="checkout-nombre">Nombre y Apellido *</label>
+                  <input
+                    className="form-control"
+                    type="text"
+                    id="checkout-nombre"
+                    name="nombre"
+                    autoComplete="name"
+                    placeholder="Ej. Constanza Morales"
+                    aria-describedby="ayuda-nombre error-nombre"
+                    {...propsCampo("nombre")}
+                  />
+                  <span id="ayuda-nombre" className="texto-ayuda">
+                    Nombre de quien recibirá el paquete.
+                  </span>
+                  <MensajeError nombreCampo="nombre" />
+                </div>
 
-              {/* Email */}
-              <div className="campo-formulario">
-                <label htmlFor="checkout-email">Correo Electrónico *</label>
-                <input
-                  type="email"
-                  id="checkout-email"
-                  name="email"
-                  autoComplete="email"
-                  placeholder="tu_correo@ejemplo.cl"
-                  aria-describedby="ayuda-email error-email"
-                  {...propsCampo("email")}
-                />
-                <span id="ayuda-email" className="texto-ayuda">
-                  Enviaremos el comprobante y seguimiento de la orden.
-                </span>
-                <MensajeError nombreCampo="email" />
-              </div>
+                {/* Email */}
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="checkout-email">Correo Electrónico *</label>
+                  <input
+                    className="form-control"
+                    type="email"
+                    id="checkout-email"
+                    name="email"
+                    autoComplete="email"
+                    placeholder="tu_correo@ejemplo.cl"
+                    aria-describedby="ayuda-email error-email"
+                    {...propsCampo("email")}
+                  />
+                  <span id="ayuda-email" className="texto-ayuda">
+                    Enviaremos el comprobante y seguimiento de la orden.
+                  </span>
+                  <MensajeError nombreCampo="email" />
+                </div>
 
-              {/* Teléfono */}
-              <div className="campo-formulario">
-                <label htmlFor="checkout-telefono">Teléfono Móvil (Chile) *</label>
-                <input
-                  type="tel"
-                  id="checkout-telefono"
-                  name="telefono"
-                  autoComplete="tel"
-                  placeholder="912345678"
-                  maxLength="9"
-                  aria-describedby="ayuda-telefono error-telefono"
-                  {...propsCampo("telefono")}
-                />
-                <span id="ayuda-telefono" className="texto-ayuda">
-                  9 dígitos sin espacios ni código de país (+56).
-                </span>
-                <MensajeError nombreCampo="telefono" />
-              </div>
+                {/* Teléfono */}
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="checkout-telefono">Teléfono Móvil (Chile) *</label>
+                  <input
+                    className="form-control"
+                    type="tel"
+                    id="checkout-telefono"
+                    name="telefono"
+                    autoComplete="tel"
+                    placeholder="912345678"
+                    maxLength="9"
+                    aria-describedby="ayuda-telefono error-telefono"
+                    {...propsCampo("telefono")}
+                  />
+                  <span id="ayuda-telefono" className="texto-ayuda">
+                    9 dígitos sin espacios ni código de país (+56).
+                  </span>
+                  <MensajeError nombreCampo="telefono" />
+                </div>
 
-              {/* Región */}
-              <div className="campo-formulario">
-                <label htmlFor="checkout-region">Región *</label>
-                <select
-                  id="checkout-region"
-                  name="region"
-                  aria-describedby="error-region"
-                  {...propsCampo("region")}
-                >
-                  <option value="">Selecciona tu región...</option>
-                  <option value="metropolitana">Región Metropolitana</option>
-                  <option value="valparaiso">Región de Valparaíso</option>
-                  <option value="biobio">Región del Biobío</option>
-                </select>
-                <MensajeError nombreCampo="region" />
-              </div>
+                {/* Región */}
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="checkout-region">Región *</label>
+                  <select
+                    className="form-select"
+                    id="checkout-region"
+                    name="region"
+                    aria-describedby="error-region"
+                    {...propsCampo("region")}
+                  >
+                    <option value="">Selecciona tu región...</option>
+                    <option value="metropolitana">Región Metropolitana</option>
+                    <option value="valparaiso">Región de Valparaíso</option>
+                    <option value="biobio">Región del Biobío</option>
+                  </select>
+                  <MensajeError nombreCampo="region" />
+                </div>
 
-              {/* Comuna */}
-              <div className="campo-formulario">
-                <label htmlFor="checkout-comuna">Comuna *</label>
-                <input
-                  type="text"
-                  id="checkout-comuna"
-                  name="comuna"
-                  autoComplete="address-level2"
-                  placeholder="Ej. Santiago Centro, Maipú, Viña del Mar"
-                  aria-describedby="error-comuna"
-                  {...propsCampo("comuna")}
-                />
-                <MensajeError nombreCampo="comuna" />
-              </div>
+                {/* Comuna */}
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="checkout-comuna">Comuna *</label>
+                  <input
+                    className="form-control"
+                    type="text"
+                    id="checkout-comuna"
+                    name="comuna"
+                    autoComplete="address-level2"
+                    placeholder="Ej. Santiago Centro, Maipú, Viña del Mar"
+                    aria-describedby="error-comuna"
+                    {...propsCampo("comuna")}
+                  />
+                  <MensajeError nombreCampo="comuna" />
+                </div>
 
-              {/* Dirección */}
-              <div className="campo-formulario">
-                <label htmlFor="checkout-direccion">
-                  Dirección exacta y número (o depto) *
-                </label>
-                <input
-                  type="text"
-                  id="checkout-direccion"
-                  name="direccion"
-                  autoComplete="street-address"
-                  placeholder="Ej. Av. Providencia 1234, Depto 501"
-                  aria-describedby="ayuda-direccion error-direccion"
-                  {...propsCampo("direccion")}
-                />
-                <span id="ayuda-direccion" className="texto-ayuda">
-                  Incluye calle, número de vivienda y bloque/depto si aplica.
-                </span>
-                <MensajeError nombreCampo="direccion" />
-              </div>
-            </fieldset>
+                {/* Dirección */}
+                <div className="mb-0">
+                  <label className="form-label" htmlFor="checkout-direccion">
+                    Dirección exacta y número (o depto) *
+                  </label>
+                  <input
+                    className="form-control"
+                    type="text"
+                    id="checkout-direccion"
+                    name="direccion"
+                    autoComplete="street-address"
+                    placeholder="Ej. Av. Providencia 1234, Depto 501"
+                    aria-describedby="ayuda-direccion error-direccion"
+                    {...propsCampo("direccion")}
+                  />
+                  <span id="ayuda-direccion" className="texto-ayuda">
+                    Incluye calle, número de vivienda y bloque/depto si aplica.
+                  </span>
+                  <MensajeError nombreCampo="direccion" />
+                </div>
+              </fieldset>
 
-            <fieldset
-              style={{
-                border: "1px solid var(--color-borde)",
-                borderRadius: "var(--radio-md)",
-                padding: "var(--espacio-md)",
-                marginBottom: "var(--espacio-md)",
-              }}
-            >
-              <legend style={{ color: "var(--color-texto-alto)", fontWeight: 700, padding: "0 var(--espacio-xs)" }}>
-                2. Medio de Pago Simulado
-              </legend>
-              <div className="campo-formulario">
-                <label htmlFor="checkout-pago">Método de pago *</label>
-                <select
-                  id="checkout-pago"
-                  name="metodoPago"
-                  aria-describedby="error-pago"
-                  {...propsCampo("metodoPago")}
-                >
-                  <option value="">Elige una opción...</option>
-                  <option value="webpay">Webpay Plus (Débito / Crédito)</option>
-                  <option value="transferencia">Transferencia Bancaria Directa</option>
-                  <option value="mach">MACH / Prepago Digital</option>
-                </select>
-                <MensajeError nombreCampo="metodoPago" />
-              </div>
-            </fieldset>
+              <fieldset className="border rounded-3 p-3 mb-3">
+                <legend className="float-none w-auto px-1 fs-6 fw-bold text-body-emphasis">
+                  2. Medio de Pago Simulado
+                </legend>
+                <div className="mb-0">
+                  <label className="form-label" htmlFor="checkout-pago">Método de pago *</label>
+                  <select
+                    className="form-select"
+                    id="checkout-pago"
+                    name="metodoPago"
+                    aria-describedby="error-pago"
+                    {...propsCampo("metodoPago")}
+                  >
+                    <option value="">Elige una opción...</option>
+                    <option value="webpay">Webpay Plus (Débito / Crédito)</option>
+                    <option value="transferencia">Transferencia Bancaria Directa</option>
+                    <option value="mach">MACH / Prepago Digital</option>
+                  </select>
+                  <MensajeError nombreCampo="metodoPago" />
+                </div>
+              </fieldset>
 
-            <button
-              type="submit"
-              className={`boton-primario${carritoVacio ? " boton-deshabilitado" : ""}`}
-              style={{ width: "100%" }}
-              disabled={carritoVacio}
-            >
-              Confirmar y Pagar Orden
-            </button>
-          </form>
+              <button type="submit" className="btn btn-primary w-100" disabled={carritoVacio}>
+                Confirmar y Pagar Orden
+              </button>
+            </form>
+          </div>
 
           {/* Resumen lateral de la orden */}
-          <aside className="resumen-pedido" aria-labelledby="titulo-resumen">
-            <h2 id="titulo-resumen">Resumen del Pedido</h2>
-            <div style={{ marginBottom: "var(--espacio-sm)" }}>
+          <aside className="col-12 col-lg-5 resumen-pedido" aria-labelledby="titulo-resumen">
+            <h2 id="titulo-resumen" className="h5">Resumen del Pedido</h2>
+            <div className="mb-2">
               {items.map((item) => (
-                <div
-                  key={item.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontSize: "var(--tam-pequeno)",
-                    marginBottom: "0.3rem",
-                  }}
-                >
+                <div key={item.id} className="d-flex justify-content-between small mb-1">
                   <span>
                     {item.cantidad}x {item.nombre}
                   </span>
