@@ -18,24 +18,25 @@ export default function TarjetaProducto({ producto }) {
   }
 
   return (
-    <article className="tarjeta-producto">
+    <article className="tarjeta-producto card h-100">
       <img
-        className="tarjeta-producto__imagen"
+        className="tarjeta-producto__imagen card-img-top"
         src={producto.imagen}
         alt={`Fotografía de ${producto.nombre}`}
         loading="lazy"
       />
 
-      <div className="tarjeta-producto__cuerpo">
-        <p className="tarjeta-producto__categoria">
+      <div className="tarjeta-producto__cuerpo card-body d-flex flex-column gap-1">
+        <p className="tarjeta-producto__categoria card-subtitle mb-1">
           {producto.categoria.charAt(0).toUpperCase() + producto.categoria.slice(1)}
         </p>
 
-        <h3 className="tarjeta-producto__titulo">
+        <h3 className="tarjeta-producto__titulo card-title h6 mb-1">
           <Link to={`/detalle/${producto.id}`}>{producto.nombre}</Link>
         </h3>
 
         <p
+          className="mb-0"
           style={{
             fontSize: "var(--tam-pequeno)",
             color: sinStock ? "var(--color-error)" : "var(--color-texto-tenue)",
@@ -44,7 +45,7 @@ export default function TarjetaProducto({ producto }) {
           {sinStock ? "Sin stock disponible" : `Stock: ${producto.stockDisponible} un.`}
         </p>
 
-        <p className="tarjeta-producto__precio">
+        <p className="tarjeta-producto__precio mt-auto mb-2">
           {producto.descuentoVigente.activo ? (
             <>
               {formatearPesosCLP(precioFinalProducto(producto))}{" "}
@@ -58,11 +59,11 @@ export default function TarjetaProducto({ producto }) {
         </p>
 
         {sinStock ? (
-          <button type="button" className="boton-deshabilitado" disabled aria-disabled="true">
+          <button type="button" className="btn btn-secondary w-100" disabled aria-disabled="true">
             Agotado
           </button>
         ) : (
-          <button type="button" className="boton-primario" onClick={manejarAgregar}>
+          <button type="button" className="btn btn-primary w-100" onClick={manejarAgregar}>
             Agregar al carrito
           </button>
         )}

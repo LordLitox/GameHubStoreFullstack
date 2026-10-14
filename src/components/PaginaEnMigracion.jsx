@@ -6,11 +6,11 @@
 export default function PaginaEnMigracion({ titulo, archivoLegacy }) {
   return (
     <section className="seccion" aria-labelledby="titulo-migracion">
-      <div className="contenedor">
+      <div className="container">
         <h1 id="titulo-migracion">{titulo}</h1>
-        <div className="mensaje-alerta">
-          <span className="mensaje-alerta__icono" aria-hidden="true">⚙</span>
-          <p>
+        <div className="alert alert-info d-flex align-items-center gap-2">
+          <span aria-hidden="true">⚙</span>
+          <p className="mb-0">
             Esta página está siendo migrada de HTML/JS vanilla a React y aún
             no está disponible en la nueva versión.
           </p>
@@ -18,7 +18,7 @@ export default function PaginaEnMigracion({ titulo, archivoLegacy }) {
         <p>
           Mientras tanto, puedes continuar usando la versión original del sitio:
         </p>
-        <a className="boton-primario" href={`/legacy/${archivoLegacy}`}>
+        <a className="btn btn-primary" href={`/legacy/${archivoLegacy}`}>
           Ir a la versión legacy de {titulo}
         </a>
       </div>
