@@ -1,6 +1,8 @@
 /**
  * Colección simulada de productos (EP1: sin backend).
  * Migrada tal cual desde legacy/js/data.js para no alterar los datos.
+ * Las rutas de imagen se actualizaron para que cada producto muestre una
+ * fotografía acorde (ver public/assets/img/CREDITOS.md).
  */
 export const PRODUCTOS = [
   {
@@ -12,7 +14,7 @@ export const PRODUCTOS = [
     descuentoVigente: { activo: true, porcentaje: 10 },
     stockDisponible: 5,
     destacado: true,
-    imagen: "/assets/img/producto-teclado.jpg",
+    imagen: "/assets/img/producto-notebook-asus.jpg",
     descripcion: "Intel Core i7-13650HX, 16GB RAM DDR5, 512GB SSD NVMe, NVIDIA RTX 4060.",
     especificaciones: {
       procesador: "Intel Core i7-13650HX",
@@ -30,7 +32,7 @@ export const PRODUCTOS = [
     descuentoVigente: { activo: false, porcentaje: 0 },
     stockDisponible: 0, // CASO DE PRUEBA: SIN STOCK
     destacado: false,
-    imagen: "/assets/img/categoria-consolas.jpg",
+    imagen: "/assets/img/producto-notebook-lenovo.jpg",
     descripcion: "AMD Ryzen 7 7745HX, 32GB RAM DDR5, 1TB SSD, NVIDIA RTX 4070.",
     especificaciones: {
       procesador: "AMD Ryzen 7 7745HX",
@@ -48,7 +50,7 @@ export const PRODUCTOS = [
     descuentoVigente: { activo: true, porcentaje: 15 },
     stockDisponible: 7,
     destacado: true,
-    imagen: "/assets/img/categoria-accesorios.jpg",
+    imagen: "/assets/img/producto-tarjeta-video.jpg",
     descripcion: "12GB GDDR6X, refrigeración Torx Fan 4.0 con backplate reforzado.",
     especificaciones: {
       memoria: "12GB GDDR6X",
@@ -140,7 +142,7 @@ export const PRODUCTOS = [
     descuentoVigente: { activo: false, porcentaje: 0 },
     stockDisponible: 6,
     destacado: false,
-    imagen: "/assets/img/categoria-consolas.jpg",
+    imagen: "/assets/img/producto-monitor.jpg",
     descripcion: "Panel VA Full HD 1500R, 1ms MPRT y soporte AMD FreeSync Premium.",
     especificaciones: {
       pantalla: "27 pulgadas curva 1500R",
