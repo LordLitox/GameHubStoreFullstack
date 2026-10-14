@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import {
   validarStock,
   precioFinalProducto,
@@ -63,7 +62,7 @@ describe("agregarAlCarrito", () => {
   it("agrega un producto nuevo con el precio descontado", () => {
     const res = agregarAlCarrito([], PRODUCTOS, 1, 2);
     expect(res.exito).toBe(true);
-    expect(res.carrito).toHaveLength(1);
+    expect(res.carrito).toHaveSize(1);
     expect(res.carrito[0].cantidad).toBe(2);
     expect(res.carrito[0].precio).toBe(90000);
     expect(res.carrito[0].precioOriginal).toBe(100000);
@@ -74,13 +73,13 @@ describe("agregarAlCarrito", () => {
     const res = agregarAlCarrito(carrito, PRODUCTOS, 1, 1);
     expect(res.exito).toBe(true);
     expect(res.carrito[0].cantidad).toBe(3);
-    expect(res.carrito).toHaveLength(1);
+    expect(res.carrito).toHaveSize(1);
   });
 
   it("rechaza superar el stock disponible", () => {
     const res = agregarAlCarrito([], PRODUCTOS, 1, 10);
     expect(res.exito).toBe(false);
-    expect(res.carrito).toHaveLength(0);
+    expect(res.carrito).toHaveSize(0);
     expect(res.mensaje).toContain("Stock disponible: 5");
   });
 
@@ -110,7 +109,7 @@ describe("quitarLinea", () => {
       { id: 3, cantidad: 2 },
     ];
     const resultado = quitarLinea(carrito, 1);
-    expect(resultado).toHaveLength(1);
+    expect(resultado).toHaveSize(1);
     expect(resultado[0].id).toBe(3);
   });
 });
@@ -127,7 +126,7 @@ describe("cambiarCantidad", () => {
   it("elimina la línea al llegar a cero", () => {
     const res = cambiarCantidad(carrito, PRODUCTOS, 1, 0);
     expect(res.exito).toBe(true);
-    expect(res.carrito).toHaveLength(0);
+    expect(res.carrito).toHaveSize(0);
   });
 
   it("rechaza cantidades sobre el stock", () => {

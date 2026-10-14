@@ -7,7 +7,10 @@ export const CUPONES = [
     codigo: "GAMEHUB20",
     porcentaje: 20,
     topeMaximo: 50000,
-    expira: "2026-12-31", // Vigente
+    // Fecha lejana a propósito: es un cupón de demo y no debe caducar
+    // durante la presentación. La regla de vigencia sí se prueba con
+    // fechas inyectadas en src/lib/__tests__/cupones.test.js.
+    expira: "2099-12-31",
   },
   {
     codigo: "BIENVENIDO10",

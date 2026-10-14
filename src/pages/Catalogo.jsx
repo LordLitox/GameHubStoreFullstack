@@ -84,149 +84,132 @@ export default function Catalogo() {
 
   return (
     <div className="seccion">
-      <div className="contenedor">
+      <div className="container">
         <h1>Catálogo de Productos Gamer</h1>
         <p>
           Filtra por categoría, marca o rango de presupuesto para encontrar el
           componente ideal para tu setup.
         </p>
 
-        <div
-          className="grid-hero"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "280px 1fr",
-            gap: "var(--espacio-lg)",
-            alignItems: "start",
-          }}
-        >
+        <div className="row g-4 g-lg-5 align-items-start">
           {/* Barra lateral de Filtros y Ordenamiento */}
-          <aside
-            style={{
-              backgroundColor: "var(--color-superficie)",
-              border: "1px solid var(--color-borde)",
-              borderRadius: "var(--radio-lg)",
-              padding: "var(--espacio-md)",
-            }}
-            aria-labelledby="titulo-filtros"
-          >
-            <h2 id="titulo-filtros" style={{ fontSize: "1.2rem", marginBottom: "var(--espacio-sm)" }}>
-              Filtros de Búsqueda
-            </h2>
+          <aside className="col-12 col-lg-4 col-xl-3" aria-labelledby="titulo-filtros">
+            <div className="card">
+              <div className="card-body">
+                <h2 id="titulo-filtros" className="h5 mb-3">
+                  Filtros de Búsqueda
+                </h2>
 
-            <form onSubmit={(e) => e.preventDefault()}>
-              {/* Categoría */}
-              <div className="campo-formulario">
-                <label htmlFor="filtro-categoria">Categoría</label>
-                <select
-                  id="filtro-categoria"
-                  value={categoria}
-                  onChange={(e) => setCategoria(e.target.value)}
-                >
-                  {OPCIONES_CATEGORIA.map((op) => (
-                    <option key={op.valor} value={op.valor}>{op.texto}</option>
-                  ))}
-                </select>
+                <form onSubmit={(e) => e.preventDefault()}>
+                  {/* Categoría */}
+                  <div className="mb-3">
+                    <label className="form-label" htmlFor="filtro-categoria">Categoría</label>
+                    <select
+                      className="form-select"
+                      id="filtro-categoria"
+                      value={categoria}
+                      onChange={(e) => setCategoria(e.target.value)}
+                    >
+                      {OPCIONES_CATEGORIA.map((op) => (
+                        <option key={op.valor} value={op.valor}>{op.texto}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Marca */}
+                  <div className="mb-3">
+                    <label className="form-label" htmlFor="filtro-marca">Marca</label>
+                    <select
+                      className="form-select"
+                      id="filtro-marca"
+                      value={marca}
+                      onChange={(e) => setMarca(e.target.value)}
+                    >
+                      {OPCIONES_MARCA.map((op) => (
+                        <option key={op.valor} value={op.valor}>{op.texto}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Rango de Precios */}
+                  <fieldset className="border rounded-3 p-3 mb-3">
+                    <legend className="float-none w-auto px-1 fs-6 text-body-emphasis fw-semibold">
+                      Rango de Precio ($ CLP)
+                    </legend>
+
+                    <div className="mb-2">
+                      <label className="form-label" htmlFor="filtro-precio-min">Mínimo</label>
+                      <input
+                        className="form-control"
+                        type="number"
+                        id="filtro-precio-min"
+                        placeholder="0"
+                        min="0"
+                        step="5000"
+                        value={precioMin}
+                        onChange={(e) => setPrecioMin(e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="form-label" htmlFor="filtro-precio-max">Máximo</label>
+                      <input
+                        className="form-control"
+                        type="number"
+                        id="filtro-precio-max"
+                        placeholder="2000000"
+                        min="0"
+                        step="5000"
+                        value={precioMax}
+                        onChange={(e) => setPrecioMax(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Mensaje de error si min > max (evaluación obligatoria EP1) */}
+                    {errorRangoPrecio && (
+                      <span className="texto-error mt-2" role="alert">
+                        {errorRangoPrecio}
+                      </span>
+                    )}
+                  </fieldset>
+
+                  {/* Ordenamiento */}
+                  <div className="mb-0">
+                    <label className="form-label" htmlFor="filtro-orden">Ordenar por</label>
+                    <select
+                      className="form-select"
+                      id="filtro-orden"
+                      value={orden}
+                      onChange={(e) => setOrden(e.target.value)}
+                    >
+                      {OPCIONES_ORDEN.map((op) => (
+                        <option key={op.valor} value={op.valor}>{op.texto}</option>
+                      ))}
+                    </select>
+                  </div>
+                </form>
               </div>
-
-              {/* Marca */}
-              <div className="campo-formulario">
-                <label htmlFor="filtro-marca">Marca</label>
-                <select
-                  id="filtro-marca"
-                  value={marca}
-                  onChange={(e) => setMarca(e.target.value)}
-                >
-                  {OPCIONES_MARCA.map((op) => (
-                    <option key={op.valor} value={op.valor}>{op.texto}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Rango de Precios */}
-              <fieldset
-                style={{
-                  border: "1px solid var(--color-borde)",
-                  borderRadius: "var(--radio-sm)",
-                  padding: "var(--espacio-sm)",
-                  marginBottom: "var(--espacio-md)",
-                }}
-              >
-                <legend
-                  style={{
-                    color: "var(--color-texto-alto)",
-                    fontSize: "var(--tam-pequeno)",
-                    fontWeight: 600,
-                    padding: "0 var(--espacio-xs)",
-                  }}
-                >
-                  Rango de Precio ($ CLP)
-                </legend>
-
-                <div className="campo-formulario" style={{ marginBottom: "var(--espacio-xs)" }}>
-                  <label htmlFor="filtro-precio-min">Mínimo</label>
-                  <input
-                    type="number"
-                    id="filtro-precio-min"
-                    placeholder="0"
-                    min="0"
-                    step="5000"
-                    value={precioMin}
-                    onChange={(e) => setPrecioMin(e.target.value)}
-                  />
-                </div>
-
-                <div className="campo-formulario" style={{ marginBottom: 0 }}>
-                  <label htmlFor="filtro-precio-max">Máximo</label>
-                  <input
-                    type="number"
-                    id="filtro-precio-max"
-                    placeholder="2000000"
-                    min="0"
-                    step="5000"
-                    value={precioMax}
-                    onChange={(e) => setPrecioMax(e.target.value)}
-                  />
-                </div>
-
-                {/* Mensaje de error si min > max (evaluación obligatoria EP1) */}
-                {errorRangoPrecio && (
-                  <span className="texto-error" style={{ display: "flex", marginTop: "0.5rem" }} role="alert">
-                    {errorRangoPrecio}
-                  </span>
-                )}
-              </fieldset>
-
-              {/* Ordenamiento */}
-              <div className="campo-formulario">
-                <label htmlFor="filtro-orden">Ordenar por</label>
-                <select
-                  id="filtro-orden"
-                  value={orden}
-                  onChange={(e) => setOrden(e.target.value)}
-                >
-                  {OPCIONES_ORDEN.map((op) => (
-                    <option key={op.valor} value={op.valor}>{op.texto}</option>
-                  ))}
-                </select>
-              </div>
-            </form>
+            </div>
           </aside>
 
           {/* Grilla de resultados */}
-          <section aria-labelledby="titulo-resultados">
+          <section className="col-12 col-lg-8 col-xl-9" aria-labelledby="titulo-resultados">
             <h2 id="titulo-resultados" className="visualmente-oculto">
               Lista de productos disponibles
             </h2>
-            <div className="grid-auto">
+            <div className="row row-cols-1 row-cols-sm-2 row-cols-xxl-3 g-4">
               {productosFiltrados.length === 0 ? (
-                <div className="mensaje-alerta">
-                  <span className="mensaje-alerta__icono" aria-hidden="true">ℹ</span>
-                  No se encontraron productos que coincidan con los filtros seleccionados.
+                <div className="col-12">
+                  <div className="alert alert-info d-flex align-items-center gap-2" role="status">
+                    <span aria-hidden="true">ℹ</span>
+                    No se encontraron productos que coincidan con los filtros seleccionados.
+                  </div>
                 </div>
               ) : (
                 productosFiltrados.map((producto) => (
-                  <TarjetaProducto key={producto.id} producto={producto} />
+                  <div className="col" key={producto.id}>
+                    <TarjetaProducto producto={producto} />
+                  </div>
                 ))
               )}
             </div>

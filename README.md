@@ -9,41 +9,50 @@ sin APIs externas ni bases de datos: navegación entre vistas, filtrado
 interactivo, cálculo comercial del carrito, cupones de descuento y
 persistencia vía `localStorage`.
 
-## Estado actual: migración a React en curso
+## Estado actual: aplicación React (migración completada)
 
-El sitio original (HTML/CSS/JS vanilla) vive en **`legacy/`** y sigue
-funcionando, mientras la nueva aplicación **React + Vite** se construye en la
-raíz del repositorio, página por página. El detalle del proceso, el reparto de
-tareas pendientes y las reglas de conversión HTML→JSX están en
+La versión vigente del sitio es la aplicación **React 18 + Vite 5**: las 6
+vistas del sitio original ya están migradas, con diseño responsivo sobre
+**Bootstrap 5.3** y 81 pruebas automatizadas en verde. La migración está
+**cerrada**: el sitio HTML/CSS/JS vanilla de la EP1 se eliminó del repositorio
+al completarse, y el proceso seguido queda documentado en
 **[MIGRACION.md](MIGRACION.md)**.
+
+### Documentación
+
+| Documento | Contenido |
+| --- | --- |
+| **[ERS.md](ERS.md)** | Especificación de requisitos de software: funcionales, no funcionales, reglas de negocio y matriz de trazabilidad. |
+| **[COBERTURA.md](COBERTURA.md)** | Cómo se mide la cobertura de las pruebas y los resultados obtenidos. |
+| **[MIGRACION.md](MIGRACION.md)** | Guía histórica de la migración HTML→React. |
 
 ### Comandos
 
 ```bash
-npm install     # instalar dependencias (primera vez)
-npm run dev     # aplicación React en http://localhost:5173
-npm test        # pruebas unitarias de la lógica de negocio (Vitest)
-npm run build   # build de producción en dist/
+npm install            # instalar dependencias (primera vez)
+npm run dev            # servidor de desarrollo en http://localhost:5173
+npm test               # 81 pruebas de lógica, componentes y páginas (Karma + Jasmine)
+npm run test:coverage  # pruebas + reporte de cobertura en coverage/
+npm run build          # build de producción en dist/
 ```
-
-El sitio legacy queda accesible durante el desarrollo en
-`http://localhost:5173/legacy/index.html`.
 
 ### Estructura del repositorio
 
 ```
 GameHubStoreFullstack/
-├── index.html               # Entrada de la app React (Vite)
+├── index.html               # Entrada de la SPA (Vite)
 ├── src/                     # Aplicación React
 │   ├── pages/               #   6 vistas (una por ruta) + 404
 │   ├── components/          #   Layout, Cabecera, PieSitio, TarjetaProducto...
 │   ├── context/             #   Estado global del carrito (useReducer + localStorage)
 │   ├── lib/                 #   Lógica de negocio pura + pruebas unitarias
-│   ├── data/                #   PRODUCTOS, CUPONES, PERFILES_USUARIO
+│   ├── __tests__/           #   Utilidades de prueba (render con providers, mocks)
+│   ├── data/                #   PRODUCTOS, CUPONES
 │   ├── hooks/               #   useTitulo
-│   └── styles.css           #   Hoja de estilos del sitio original (reutilizada)
+│   └── styles.css           #   Tema de marca sobre Bootstrap (paleta y componentes)
 ├── public/assets/           # Imágenes y video (ver LEEME.md dentro)
-├── legacy/                  # Sitio vanilla original (EP1), se elimina al terminar
+├── ERS.md                   # Especificación de requisitos de software
+├── COBERTURA.md             # Documento de cobertura de la batería de pruebas
 └── MIGRACION.md             # Guía paso a paso de la migración para el equipo
 ```
 
@@ -52,14 +61,20 @@ GameHubStoreFullstack/
 - **Estructura semántica y accesible (WCAG 2.1 AA):** marcado HTML5
   (`<main>`, `<article>`, `<section>`, `<nav>`, `<aside>`), contraste
   optimizado (mínimo 4.5:1), enlaces de salto y etiquetas accesibles.
+- **Diseño responsivo con Bootstrap 5.3:** rejilla `container`/`row`/`col-*`
+  por breakpoint, navbar colapsable, tarjetas, tablas, formularios, alertas y
+  modal de ficha técnica, sobre un tema oscuro de marca que sobrescribe las
+  variables `--bs-*` de Bootstrap.
 - **Catálogo interactivo dinámico:** filtros por categoría, marca,
   ordenación y validación cruzada de rango de precios (mínimo ≤ máximo).
 - **Gestión de carrito de compras:** control de inventario en tiempo real,
   bloqueo de productos agotados y persistencia entre páginas vía
-  `localStorage` (claves compartidas entre la versión legacy y React).
+  `localStorage` (claves `gh_carrito_v1` y `gh_cupon_activo_v1`).
 - **Motor de cupones y totales:** descuentos por porcentaje con topes
   máximos en pesos, fechas de caducidad y totales nunca negativos, cubierto
-  por 46 pruebas unitarias con Vitest.
+  por 81 pruebas con Jasmine y Karma: lógica de negocio, componentes
+  (`TarjetaProducto`, `Cabecera`), contexto del carrito y páginas
+  (`Carrito`, `Checkout`) con mocks de `localStorage`, `alert` y `Math.random`.
 - **Formularios con validación en tiempo real:** validación nativa en
   `blur`, `input` y `submit` en checkout y solicitud de garantías
   post-venta, con retroalimentación visual e iconográfica.

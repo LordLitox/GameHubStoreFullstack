@@ -89,14 +89,14 @@ export default function Ordenes() {
 
   const MensajeError = ({ nombreCampo }) =>
     errores[nombreCampo]?.valido === false ? (
-      <span className="texto-error" style={{ display: "flex" }} role="alert">
+      <span className="texto-error mt-1" role="alert">
         {errores[nombreCampo].mensaje}
       </span>
     ) : null;
 
   return (
     <div className="seccion">
-      <div className="contenedor">
+      <div className="container">
         <h1>Historial de Pedidos y Post-Venta</h1>
         <p>
           Revisa el estado de tus compras recientes, el seguimiento de tus
@@ -104,86 +104,42 @@ export default function Ordenes() {
         </p>
 
         {/* ----- Sección 1: Listado de órdenes ----- */}
-        <section
-          aria-labelledby="titulo-mis-ordenes"
-          style={{ marginBottom: "var(--espacio-xl)" }}
-        >
+        <section className="mb-5" aria-labelledby="titulo-mis-ordenes">
           <h2 id="titulo-mis-ordenes">Tus compras recientes</h2>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--espacio-md)" }}>
+          <div className="d-flex flex-column gap-3">
             {ORDENES_SIMULADAS.map((orden) => (
-              <article key={orden.numero} className="tarjeta-producto" style={{ padding: "var(--espacio-md)" }}>
-                <div
-                  className="flex-entre"
-                  style={{
-                    borderBottom: "1px solid var(--color-borde)",
-                    paddingBottom: "var(--espacio-sm)",
-                    marginBottom: "var(--espacio-sm)",
-                  }}
-                >
-                  <div>
-                    <strong style={{ color: "var(--color-texto-alto)", fontSize: "1.1rem" }}>
-                      Orden #{orden.numero}
-                    </strong>
-                    <p style={{ margin: 0, fontSize: "var(--tam-pequeno)", color: "var(--color-texto-tenue)" }}>
-                      Fecha de compra: {orden.fecha}
-                    </p>
+              <article key={orden.numero} className="tarjeta-producto card">
+                <div className="card-body">
+                  <div
+                    className="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-2 mb-2 border-bottom"
+                  >
+                    <div>
+                      <strong className="text-body-emphasis fs-5">Orden #{orden.numero}</strong>
+                      <p className="mb-0 small text-body-secondary">Fecha de compra: {orden.fecha}</p>
+                    </div>
+                    <div>
+                      {orden.entregado ? (
+                        <span className="badge text-bg-success">✓ Entregado</span>
+                      ) : (
+                        <span className="badge text-bg-primary">🚚 {orden.estado}</span>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    {orden.entregado ? (
-                      <span
-                        style={{
-                          display: "inline-block",
-                          backgroundColor: "rgba(172, 213, 80, 0.15)",
-                          color: "var(--color-acento)",
-                          padding: "0.25rem 0.6rem",
-                          borderRadius: "var(--radio-sm)",
-                          fontWeight: 700,
-                          fontSize: "var(--tam-pequeno)",
-                        }}
-                      >
-                        ✓ Entregado
-                      </span>
-                    ) : (
-                      <span
-                        style={{
-                          display: "inline-block",
-                          backgroundColor: "rgba(102, 192, 244, 0.15)",
-                          color: "var(--color-primario)",
-                          padding: "0.25rem 0.6rem",
-                          borderRadius: "var(--radio-sm)",
-                          fontWeight: 700,
-                          fontSize: "var(--tam-pequeno)",
-                        }}
-                      >
-                        🚚 {orden.estado}
-                      </span>
-                    )}
-                  </div>
-                </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: "var(--espacio-sm)",
-                  }}
-                >
-                  <div>
-                    <p style={{ margin: 0, fontWeight: 600 }}>{orden.producto}</p>
-                    <p style={{ margin: 0, fontSize: "var(--tam-pequeno)", color: "var(--color-texto-tenue)" }}>
-                      Seguimiento {orden.seguimientoEmpresa}: <strong>{orden.seguimientoCodigo}</strong>
-                    </p>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <p className="tarjeta-producto__precio" style={{ margin: 0 }}>
-                      ${orden.total.toLocaleString("es-CL")}
-                    </p>
-                    <span style={{ fontSize: "var(--tam-pequeno)", color: "var(--color-texto-tenue)" }}>
-                      {orden.pago}
-                    </span>
+                  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                      <p className="mb-0 fw-semibold">{orden.producto}</p>
+                      <p className="mb-0 small text-body-secondary">
+                        Seguimiento {orden.seguimientoEmpresa}: <strong>{orden.seguimientoCodigo}</strong>
+                      </p>
+                    </div>
+                    <div className="text-end">
+                      <p className="tarjeta-producto__precio mb-0">
+                        ${orden.total.toLocaleString("es-CL")}
+                      </p>
+                      <span className="small text-body-secondary">{orden.pago}</span>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -193,80 +149,77 @@ export default function Ordenes() {
 
         {/* ----- Sección 2: Formulario de Garantía Legal ----- */}
         <section aria-labelledby="titulo-garantia">
-          <div
-            style={{
-              backgroundColor: "var(--color-superficie)",
-              border: "1px solid var(--color-borde)",
-              borderRadius: "var(--radio-lg)",
-              padding: "var(--espacio-lg)",
-              maxWidth: "700px",
-            }}
-          >
-            <h2 id="titulo-garantia">Solicitud de Garantía Técnica y Devolución</h2>
-            <p>
-              Si tu hardware presenta fallas técnicas, ingresa los datos a
-              continuación. El plazo máximo de cobertura legal es de 180 días
-              corridos a partir de la entrega.
-            </p>
+          <div className="card" style={{ maxWidth: "700px" }}>
+            <div className="card-body p-4">
+              <h2 id="titulo-garantia">Solicitud de Garantía Técnica y Devolución</h2>
+              <p>
+                Si tu hardware presenta fallas técnicas, ingresa los datos a
+                continuación. El plazo máximo de cobertura legal es de 180 días
+                corridos a partir de la entrega.
+              </p>
 
-            <form onSubmit={manejarSubmit} noValidate>
-              <div className="campo-formulario">
-                <label htmlFor="garantia-fecha">Fecha de recepción del producto *</label>
-                <input
-                  type="date"
-                  id="garantia-fecha"
-                  name="fecha"
-                  aria-describedby="ayuda-fecha error-fecha"
-                  value={garantia.fecha}
-                  onChange={(e) => manejarCambio("fecha", e.target.value)}
-                  onBlur={() => manejarBlur("fecha")}
-                />
-                <span id="ayuda-fecha" className="texto-ayuda">
-                  Fecha en la que recibiste físicamente el paquete.
-                </span>
-                <MensajeError nombreCampo="fecha" />
-              </div>
+              <form onSubmit={manejarSubmit} noValidate>
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="garantia-fecha">Fecha de recepción del producto *</label>
+                  <input
+                    className="form-control"
+                    type="date"
+                    id="garantia-fecha"
+                    name="fecha"
+                    aria-describedby="ayuda-fecha error-fecha"
+                    value={garantia.fecha}
+                    onChange={(e) => manejarCambio("fecha", e.target.value)}
+                    onBlur={() => manejarBlur("fecha")}
+                  />
+                  <span id="ayuda-fecha" className="texto-ayuda">
+                    Fecha en la que recibiste físicamente el paquete.
+                  </span>
+                  <MensajeError nombreCampo="fecha" />
+                </div>
 
-              <div className="campo-formulario">
-                <label htmlFor="garantia-motivo">Motivo de la solicitud *</label>
-                <select
-                  id="garantia-motivo"
-                  name="motivo"
-                  aria-describedby="error-motivo"
-                  value={garantia.motivo}
-                  onChange={(e) => manejarCambio("motivo", e.target.value)}
-                  onBlur={() => manejarBlur("motivo")}
-                >
-                  <option value="">Selecciona el motivo...</option>
-                  <option value="falla-fabrica">Falla técnica de fábrica o mal funcionamiento</option>
-                  <option value="incompleto">Producto llegó incompleto o con daño físico por transporte</option>
-                  <option value="incompatibilidad">Problema crítico de compatibilidad de componentes</option>
-                </select>
-                <MensajeError nombreCampo="motivo" />
-              </div>
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="garantia-motivo">Motivo de la solicitud *</label>
+                  <select
+                    className="form-select"
+                    id="garantia-motivo"
+                    name="motivo"
+                    aria-describedby="error-motivo"
+                    value={garantia.motivo}
+                    onChange={(e) => manejarCambio("motivo", e.target.value)}
+                    onBlur={() => manejarBlur("motivo")}
+                  >
+                    <option value="">Selecciona el motivo...</option>
+                    <option value="falla-fabrica">Falla técnica de fábrica o mal funcionamiento</option>
+                    <option value="incompleto">Producto llegó incompleto o con daño físico por transporte</option>
+                    <option value="incompatibilidad">Problema crítico de compatibilidad de componentes</option>
+                  </select>
+                  <MensajeError nombreCampo="motivo" />
+                </div>
 
-              <div className="campo-formulario">
-                <label htmlFor="garantia-detalle">Descripción detallada de la falla *</label>
-                <textarea
-                  id="garantia-detalle"
-                  name="detalle"
-                  rows="4"
-                  placeholder="Indica qué pruebas realizaste y cuál es la anomalía (mínimo 20 caracteres)..."
-                  aria-describedby="ayuda-detalle error-detalle"
-                  value={garantia.detalle}
-                  onChange={(e) => manejarCambio("detalle", e.target.value)}
-                  onBlur={() => manejarBlur("detalle")}
-                />
-                <span id="ayuda-detalle" className="texto-ayuda">
-                  Describe el problema con claridad para agilizar la revisión técnica.
-                </span>
-                <MensajeError nombreCampo="detalle" />
-              </div>
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="garantia-detalle">Descripción detallada de la falla *</label>
+                  <textarea
+                    className="form-control"
+                    id="garantia-detalle"
+                    name="detalle"
+                    rows="4"
+                    placeholder="Indica qué pruebas realizaste y cuál es la anomalía (mínimo 20 caracteres)..."
+                    aria-describedby="ayuda-detalle error-detalle"
+                    value={garantia.detalle}
+                    onChange={(e) => manejarCambio("detalle", e.target.value)}
+                    onBlur={() => manejarBlur("detalle")}
+                  />
+                  <span id="ayuda-detalle" className="texto-ayuda">
+                    Describe el problema con claridad para agilizar la revisión técnica.
+                  </span>
+                  <MensajeError nombreCampo="detalle" />
+                </div>
 
-              <button type="submit" className="boton-primario">
-                Ingresar Solicitud de Garantía
-              </button>
-            </form>
+                <button type="submit" className="btn btn-primary">
+                  Ingresar Solicitud de Garantía
+                </button>
+              </form>
+            </div>
           </div>
         </section>
       </div>

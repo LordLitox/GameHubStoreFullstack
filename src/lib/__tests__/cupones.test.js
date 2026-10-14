@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import { cuponVigente, buscarCupon, aplicarCupon, calcularTotales } from "../cupones.js";
 
 const CUPONES = [
