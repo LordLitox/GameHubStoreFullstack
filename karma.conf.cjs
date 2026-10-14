@@ -5,7 +5,12 @@ module.exports = (config) => {
   config.set({
     basePath: "",
     frameworks: ["vite", "jasmine"],
-    plugins: ["karma-vite", "karma-jasmine", "karma-chrome-launcher"],
+    plugins: [
+      "karma-vite",
+      "karma-jasmine",
+      "karma-chrome-launcher",
+      "karma-coverage",
+    ],
     // Un patrón por extensión: con la llave {js,jsx} el glob interno de Karma
     // no cachea el mtime de los .jsx y el servidor cae al iniciar.
     files: [
@@ -39,6 +44,27 @@ module.exports = (config) => {
           ],
         },
       },
+      // Cobertura con Istanbul. karma-vite instrumenta el código fuente solo
+      // cuando el reporter incluye "coverage" (ver script `test:coverage`),
+      // por lo que `npm test` sigue corriendo sin instrumentar.
+      coverage: {
+        include: ["src/**/*.{js,jsx}"],
+        exclude: [
+          "src/**/*.test.{js,jsx}",
+          "src/__tests__/**",
+          "src/main.jsx",
+        ],
+      },
+    },
+    // Reporte de cobertura: HTML navegable + resumen por consola + lcov.
+    coverageReporter: {
+      dir: "coverage/",
+      subdir: ".",
+      reporters: [
+        { type: "html", subdir: "html" },
+        { type: "lcovonly", subdir: "." },
+        { type: "text-summary" },
+      ],
     },
     reporters: ["progress"],
     port: 9876,

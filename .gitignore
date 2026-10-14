@@ -4,6 +4,9 @@ node_modules/
 # Build de producción
 dist/
 
+# Reportes de cobertura de pruebas
+coverage/
+
 # Archivos locales
 *.local
 .DS_Store
