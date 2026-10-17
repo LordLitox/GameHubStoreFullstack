@@ -1,13 +1,13 @@
-# Video pendiente
+# Video demostrativo del setup gamer
 
-La página de inicio referencia el video demostrativo en esta carpeta, que
-aún no existe en el repositorio:
+Archivos usados por la portada (`src/pages/Inicio.jsx`):
 
-- `gamehub-setup-demo.mp4`
-- `gamehub-setup-demo.es.vtt` (subtítulos en español)
+- `gamehub-setup-demo.mp4` — video de demostración, ya incluido en el repositorio.
+- `gamehub-setup-demo.es.vtt` — subtítulos en español (**pendiente**: sin este
+  archivo el video igual se reproduce, pero no ofrece subtítulos).
 
-Mientras falten, el reproductor muestra solo el poster
-(`/assets/img/poster-setup-gamer.jpg`) y no reproduce nada.
+El `<video>` de la portada usa como póster `/assets/img/poster-setup-gamer.jpg`,
+que se muestra mientras carga (`preload="metadata"`).
 
 Formato de subtítulos (ejemplo base para completar):
 
