@@ -5,8 +5,8 @@
 | Campo | Valor |
 | --- | --- |
 | **Producto** | GameHub Store — aplicación web SPA |
-| **Versión del documento** | 1.0 |
-| **Fecha** | 13 de octubre de 2026 |
+| **Versión del documento** | 2.0 |
+| **Fecha** | 19 de octubre de 2026 |
 | **Asignatura** | Desarrollo FullStack II (DSY1104) |
 | **Entrega** | Evaluación Parcial 2 |
 | **Equipo** | 3 integrantes (ver historial de *commits* del repositorio) |
@@ -42,13 +42,16 @@ pasarela de pago real**:
 5. Aplicar cupones de descuento y calcular totales.
 6. Completar un formulario de checkout con validación en tiempo real.
 7. Revisar el historial de pedidos y solicitar una garantía post-venta.
+8. Administrar el catálogo y los cupones con operaciones CRUD desde un panel de
+   administración (solo en memoria).
 
 Los datos se mantienen en memoria (`src/data/`) y el estado del carrito se
 persiste en el navegador con `localStorage`.
 
 **Fuera de alcance (EP2):** backend y API REST, autenticación de usuarios,
-pagos reales, correos transaccionales, panel de administración, inventario real
-y buscador de texto libre. Estos puntos se detallan en el anexo C.
+pagos reales, correos transaccionales, inventario real y buscador de texto
+libre. El panel de administración existe, pero opera solo en memoria (sin
+persistencia ni control de acceso). Estos puntos se detallan en el anexo C.
 
 ### 1.3 Definiciones y acrónimos
 
@@ -89,12 +92,12 @@ Se compila como un sitio estático (`npm run build` → `dist/`) y se ejecuta
 | Capa | Tecnología | Responsabilidad |
 | --- | --- | --- |
 | Presentación | React 18 + JSX | Componentes y páginas declarativas. |
-| Navegación | React Router 6 | 6 rutas + ruta comodín 404, sin recargas. |
+| Navegación | React Router 6 | 8 rutas (7 vistas + ruta comodín 404), sin recargas. |
 | Estado global | React Context + `useReducer` | Carrito y cupón activo compartidos por todas las vistas. |
 | Lógica de negocio | Módulos puros en `src/lib/` | Stock, precios, cupones, totales y validaciones (sin React ni DOM). |
 | Datos | Módulos estáticos en `src/data/` | Productos y cupones simulados. |
 | Estilos | Bootstrap 5.3 + `src/styles.css` | Sistema de rejilla responsivo y tema de marca propio. |
-| Pruebas | Karma + Jasmine + Testing Library | 81 pruebas sobre lógica, componentes y páginas. |
+| Pruebas | Karma + Jasmine + Testing Library | 116 pruebas sobre lógica, componentes, páginas y CRUD de datos. |
 
 ### 2.2 Funciones del producto
 
@@ -108,6 +111,7 @@ Se compila como un sitio estático (`npm run build` → `dist/`) y se ejecuta
 | **M6. Checkout** | Datos de despacho, validación y confirmación. | RF-37 – RF-44 |
 | **M7. Post-venta** | Historial de pedidos y solicitud de garantía. | RF-45 – RF-49 |
 | **M8. Persistencia** | Estado del carrito y del cupón en `localStorage`. | RF-50 – RF-53 |
+| **M9. Gestión de datos (CRUD)** | Panel `/admin` y operaciones Crear, Leer, Actualizar y Eliminar sobre la colección simulada. | RF-54 – RF-59 |
 
 ### 2.3 Características de los usuarios
 
@@ -119,8 +123,10 @@ distintos roles según el momento del flujo:
 | Visitante | Descubrir productos y comparar precios. | Inicio, Catálogo, Detalle |
 | Comprador | Armar el pedido, aplicar descuentos y pagar. | Carrito, Checkout |
 | Cliente post-venta | Revisar pedidos y ejercer la garantía legal. | Mis pedidos |
+| Administrador (demo) | Gestionar el catálogo y los cupones con operaciones CRUD. | Administración (`/admin`) |
 
-No existe registro, inicio de sesión ni perfil de usuario en esta entrega.
+No existe registro, inicio de sesión ni perfil de usuario en esta entrega. El
+acceso al panel de administración es público (no implementa autenticación).
 
 ### 2.4 Restricciones
 
@@ -282,7 +288,7 @@ Prioridad: **A** = imprescindible, **M** = importante, **B** = deseable.
 | RNF-03 | Compatibilidad | Ejecutarse en las versiones actuales de Chrome, Edge, Firefox y Safari. | Ejecución en Chrome Headless (pruebas) y navegadores de escritorio. |
 | RNF-04 | Rendimiento | El catálogo y los filtros se resuelven en el cliente sin recargar la página; las imágenes de tarjeta usan carga diferida. | Filtrado con `useMemo`; atributo `loading="lazy"`. |
 | RNF-05 | Mantenibilidad | La lógica de negocio reside en módulos puros de `src/lib/`, separada de los componentes de React. | Estructura de `src/` y ausencia de lógica duplicada en las vistas. |
-| RNF-06 | Testeabilidad | Toda función de negocio y los flujos principales deben tener pruebas automatizadas que superen el 80 % de cobertura en los módulos instrumentados. | `npm test` (81/81 en verde) y `npm run test:coverage`. |
+| RNF-06 | Testeabilidad | Toda función de negocio y los flujos principales deben tener pruebas automatizadas que superen el 80 % de cobertura en los módulos instrumentados. | `npm test` (116/116 en verde) y `npm run test:coverage`. |
 | RNF-07 | Privacidad | Los datos del formulario y del carrito nunca salen del navegador; no se envían a servidores externos. | Ausencia de llamadas de red en tiempo de ejecución. |
 | RNF-08 | Localización | Interfaz en español de Chile y montos formateados como CLP sin decimales. | Uso de `Intl.NumberFormat("es-CL")`. |
 | RNF-09 | Retroalimentación | Toda acción relevante entrega respuesta visual o textual (éxito, error o estado vacío) con `role="alert"` o `role="status"`. | Inspección de las vistas y de las pruebas de páginas. |
@@ -324,6 +330,7 @@ Prioridad: **A** = imprescindible, **M** = importante, **B** = deseable.
 | Carrito | `/carrito` | RF-27 – RF-36 |
 | Checkout | `/checkout` | RF-37 – RF-44 |
 | Mis pedidos / Post-venta | `/ordenes` | RF-45 – RF-49 |
+| Administración | `/admin` | RF-54 – RF-59 |
 | Página no encontrada | `*` | RF-05 |
 
 ---
@@ -337,7 +344,7 @@ Prioridad: **A** = imprescindible, **M** = importante, **B** = deseable.
 | **Unitario (lógica pura)** | `src/lib/`: `carrito.js`, `cupones.js`, `validaciones.js`, `formato.js`. | Jasmine |
 | **Unitario (estado global)** | `CarritoContext`: reductor, persistencia, cupones y guarda de `useCarrito`. | Jasmine + Testing Library |
 | **Componentes** | `TarjetaProducto` (render por props, descuento, sin stock) y `Cabecera` (contador, menú móvil, ruta activa). | Testing Library (DOM real) |
-| **Páginas / integración** | `Carrito` (tabla, cantidades, cupón, estado vacío) y `Checkout` (validación en `blur`/`input`, bloqueo y confirmación). | Testing Library + React Router |
+| **Páginas / integración** | `Carrito` (tabla, cantidades, cupón, estado vacío), `Checkout` (validación en `blur`/`input`, bloqueo y confirmación) y `Admin` (alta, edición, borrado con confirmación, validación de duplicados). | Testing Library + React Router |
 | **Mocks** | `localStorage` en memoria, `window.alert` y `Math.random` (número de orden determinista). | Jasmine spies |
 
 Las pruebas se ejecutan con **Karma + Jasmine** en **Chrome Headless** y el JSX
@@ -348,7 +355,7 @@ ejecuta en el navegador, sin necesidad de un DOM simulado.
 
 ```bash
 npm install            # instalar dependencias
-npm test               # 81 pruebas (Karma + Jasmine)
+npm test               # 116 pruebas (Karma + Jasmine)
 npm run test:coverage  # pruebas + reporte de cobertura en coverage/
 npm run build          # build de producción en dist/
 ```
@@ -357,15 +364,16 @@ npm run build          # build de producción en dist/
 
 | Métrica | Valor |
 | --- | --- |
-| Pruebas ejecutadas | **81 (81 en verde)** |
-| Archivos de prueba | 8 |
-| Cobertura de sentencias | 97,39 % |
-| Cobertura de ramas | 92,85 % |
-| Cobertura de funciones | 98,68 % |
-| Cobertura de líneas | 97,00 % |
+| Pruebas ejecutadas | **116 (116 en verde)** |
+| Archivos de prueba | 11 |
+| Cobertura de sentencias | 88,81 % |
+| Cobertura de ramas | 85,71 % |
+| Cobertura de funciones | 88,35 % |
+| Cobertura de líneas | 89,47 % |
 
-Las cifras describen los 12 módulos que las pruebas cargan; el detalle de
-módulos y del alcance real de la medición está en [`COBERTURA.md`](COBERTURA.md).
+Las cifras describen los 13 módulos que las pruebas cargan (incluida la página
+`Admin.jsx`); el detalle de módulos y del alcance real de la medición está en
+[`COBERTURA.md`](COBERTURA.md).
 
 ### 4.4 Matriz de trazabilidad
 
@@ -379,6 +387,7 @@ módulos y del alcance real de la medición está en [`COBERTURA.md`](COBERTURA.
 | RF-37 – RF-44 | `pages/Checkout.jsx`, `lib/validaciones.js` | `pages/__tests__/Checkout.test.jsx`, `lib/__tests__/validaciones.test.js` |
 | RF-45 – RF-49 | `pages/Ordenes.jsx`, `lib/validaciones.js` | `lib/__tests__/validaciones.test.js` |
 | RF-50 – RF-53 | `context/CarritoContext.jsx` | `context/__tests__/CarritoContext.test.jsx` |
+| RF-54 – RF-59 | `pages/Admin.jsx`, `data/productos.js`, `data/cupones.js` | `pages/__tests__/Admin.test.jsx`, `data/__tests__/productos.test.js`, `data/__tests__/cupones.test.js` |
 | RN-01 – RN-05 | `lib/carrito.js`, `lib/cupones.js` | `lib/__tests__/carrito.test.js`, `lib/__tests__/cupones.test.js` |
 | RN-06 – RN-11 | `lib/validaciones.js` | `lib/__tests__/validaciones.test.js` |
 | RNF-01, RNF-02, RNF-09 | `src/styles.css`, páginas y componentes con Bootstrap | Inspección en 375 px y 1280 px |
@@ -394,7 +403,7 @@ GameHubStoreFullstack/
 ├── src/
 │   ├── main.jsx             # Bootstrap, estilos, Router y CarritoProvider
 │   ├── App.jsx              # Definición de las rutas
-│   ├── pages/               # 6 vistas + 404
+│   ├── pages/               # 7 vistas (incluida Admin) + 404
 │   ├── components/          # Layout, Cabecera, PieSitio, TarjetaProducto...
 │   ├── context/             # CarritoProvider (useReducer + localStorage)
 │   ├── lib/                 # Lógica de negocio pura + pruebas unitarias
@@ -413,17 +422,20 @@ GameHubStoreFullstack/
 | Elemento | Descripción |
 | --- | --- |
 | Pruebas de render de páginas | Agregar *smoke tests* para `Inicio`, `Catalogo`, `Detalle`, `Ordenes` y `NoEncontrada` para que entren al reporte de cobertura. |
+| Cobertura de `Admin.jsx` | Ampliar las pruebas del panel de administración hasta cubrir todas las ramas de los formularios (hoy en 64,8 % de líneas). |
 | Video de demostración | Publicar `gamehub-setup-demo.mp4` y sus subtítulos `.es.vtt`. |
-| Backend | Persistir catálogo, órdenes y usuarios en un servicio real. |
+| Backend | Persistir catálogo, órdenes y usuarios en un servicio real, y dar persistencia al panel de administración. |
 
 ## Anexo C — Fuera de alcance
 
-Autenticación y perfiles de usuario, panel de administración, búsqueda de texto
-libre, pagos reales, cálculo de despacho, envío de correos, catálogo cargado
-desde un servicio externo y auditoría de pedidos.
+Autenticación y perfiles de usuario, control de acceso al panel de
+administración (que existe, pero es público y sin persistencia), búsqueda de
+texto libre, pagos reales, cálculo de despacho, envío de correos, catálogo
+cargado desde un servicio externo y auditoría de pedidos.
 
 ## Anexo D — Historial de cambios
 
 | Versión | Fecha | Cambio |
 | --- | --- | --- |
 | 1.0 | 2026-10-13 | Versión inicial para la Evaluación Parcial 2: requisitos de la aplicación React + Bootstrap, modelo de datos, reglas de negocio y matriz de trazabilidad. |
+| 2.0 | 2026-10-19 | Se incorpora el panel de administración (`/admin`) con CRUD de productos y cupones (M9, RF-54 – RF-59); se actualizan rutas (8), módulos y las cifras de pruebas y cobertura (116 pruebas). |
