@@ -8,6 +8,7 @@ const ENLACES = [
   { to: "/carrito", texto: "Carrito" },
   { to: "/checkout", texto: "Checkout" },
   { to: "/ordenes", texto: "Mis pedidos" },
+  { to: "/admin", texto: "Administración" },
 ];
 
 /**
