@@ -25,7 +25,7 @@ contienen lógica de negocio.
 
 ```bash
 npm install            # solo la primera vez
-npm run test:coverage  # ejecuta las 81 pruebas y genera el reporte
+npm run test:coverage  # ejecuta las 116 pruebas y genera el reporte
 ```
 
 El comando deja los artefactos en `coverage/`:
@@ -39,14 +39,19 @@ instrumentación solo se activa cuando el reporter incluye `coverage`.
 
 ## 3. Resultados globales
 
-Las 81 pruebas terminan en verde y la cobertura de los módulos ejercitados es:
+Las 116 pruebas terminan en verde y la cobertura de los módulos ejercitados es:
 
 | Métrica | Cobertura |
 | --- | --- |
-| Sentencias (Statements) | **97,39 %** (262/269) |
-| Ramas (Branches) | **92,85 %** (117/126) |
-| Funciones (Functions) | **98,68 %** (75/76) |
-| Líneas (Lines) | **97,00 %** (227/234) |
+| Sentencias (Statements) | **88,81 %** (413/465) |
+| Ramas (Branches) | **85,71 %** (210/245) |
+| Funciones (Functions) | **88,35 %** (129/146) |
+| Líneas (Lines) | **89,47 %** (357/399) |
+
+Estas cifras **incluyen por primera vez la página `Admin.jsx`**, que se sumó al
+reporte al incorporarse sus pruebas del panel de administración. Como es una
+vista grande con varios formularios, su cobertura parcial arrastra el promedio
+hacia abajo: los módulos de lógica pura siguen cerca del 100 %.
 
 ## 4. Cobertura por archivo
 
@@ -60,14 +65,18 @@ Las 81 pruebas terminan en verde y la cobertura de los módulos ejercitados es:
 | `hooks/useTitulo.js` | 100,0 % | 2/2 | — | 0/0 | 100,0 % | 2/2 |
 | `components/TarjetaProducto.jsx` | 100,0 % | 7/7 | 100,0 % | 8/8 | 100,0 % | 3/3 |
 | `components/Cabecera.jsx` | 88,9 % | 8/9 | 100,0 % | 4/4 | 83,3 % | 5/6 |
-| `pages/Carrito.jsx` | 100,0 % | 20/20 | 100,0 % | 13/13 | 100,0 % | 10/10 |
-| `pages/Checkout.jsx` | 94,8 % | 55/58 | 90,0 % | 18/20 | 100,0 % | 15/15 |
-| `data/productos.js` | 100,0 % | 1/1 | — | 0/0 | — | 0/0 |
-| `data/cupones.js` | 100,0 % | 1/1 | — | 0/0 | — | 0/0 |
+| `pages/Carrito.jsx` | 100,0 % | 20/20 | 100,0 % | 15/15 | 100,0 % | 10/10 |
+| `pages/Checkout.jsx` | 94,8 % | 55/58 | 88,9 % | 16/18 | 100,0 % | 15/15 |
+| `pages/Admin.jsx` | 64,8 % | 57/88 | 77,1 % | 37/48 | 64,4 % | 29/45 |
+| `data/productos.js` | 94,6 % | 35/37 | 84,6 % | 33/39 | 100,0 % | 12/12 |
+| `data/cupones.js` | 95,2 % | 40/42 | 71,9 % | 23/32 | 100,0 % | 13/13 |
 
 La lógica de negocio pura (`src/lib/`) y el estado global del carrito
 (`CarritoContext`) son los módulos con mayor densidad de casos: son también los
-que concentran reglas de precio, inventario, cupones y validaciones.
+que concentran reglas de precio, inventario, cupones y validaciones. Los
+módulos de datos (`data/productos.js` y `data/cupones.js`) exponen las
+operaciones CRUD (Crear, Leer, Actualizar, Eliminar) sobre la colección simulada
+y cuentan con su propia batería de pruebas.
 
 ## 5. Alcance real de la medición
 
@@ -87,23 +96,26 @@ de los módulos que hoy **no tienen cobertura**:
 | `components/Layout.jsx` | Layout compartido (cabecera + contenido + pie). |
 | `components/PieSitio.jsx` | Pie de página. |
 
-En total, **12 de los 20 módulos** de `src/` quedan dentro del reporte y **8
-quedan fuera**. Las cifras de la sección 3 describen únicamente a los 12
+En total, **13 de los 21 módulos** de `src/` quedan dentro del reporte y **8
+quedan fuera**. Las cifras de la sección 3 describen únicamente a los 13
 módulos ejercitados; la cobertura del proyecto completo es menor y por eso el
 listado anterior debe leerse junto con esa tabla.
 
 ## 6. Interpretación y próximos pasos
 
 - El núcleo de la lógica (carrito, cupones, validaciones, formato, contexto y las
-  páginas `Carrito` y `Checkout`) está cubierto con margen: todas las métricas
-  superan el 85 % en esos módulos.
+  páginas `Carrito`, `Checkout` y `Admin`) está cubierto con margen razonable; las
+  métricas de `src/lib/` y `CarritoContext` superan el 85 %.
+- `Admin.jsx` es hoy el módulo con menor cobertura (64,8 % de líneas): sus pruebas
+  ejercitan creación, edición, borrado y validación de productos y cupones, pero
+  no todos los campos y ramas del formulario.
 - El trabajo pendiente para completar la cobertura es agregar pruebas de
   **renderizado (smoke tests)** para las 5 páginas y 3 componentes de estructura
   listados en la sección 5, de modo que dejen de quedar fuera del reporte.
 - Los datos estáticos (`data/productos.js`, `data/cupones.js`) se incluyen porque
-  son módulos de `src/`; su cobertura es del 100 % al importarse.
+  son módulos de `src/` y entran al reporte al importarse desde sus pruebas de CRUD.
 
 ---
 
 Generado con `npm run test:coverage`. Las cifras corresponden a la corrida de
-**81 pruebas, 81 en verde**.
+**116 pruebas, 116 en verde**.

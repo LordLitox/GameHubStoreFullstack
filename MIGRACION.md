@@ -3,6 +3,11 @@
 > **Documento histórico.** La migración ya finalizó: las 6 vistas están
 > migradas a React sobre Bootstrap. Este documento se conserva como registro
 > del proceso y del criterio de conversión HTML→JSX que siguió el equipo.
+>
+> **Estado actual (EP2, 2026-10-19):** a la migración se sumaron el panel de
+> administración (`/admin`) y las operaciones CRUD de datos; hoy la app tiene
+> 7 vistas (+404) y **116 pruebas en verde**. Las cifras de este documento
+> (81 pruebas, 6 rutas) corresponden al momento en que se escribió.
 
 Este documento explica cómo migramos el sitio de HTML/CSS/JS vanilla
 (carpeta `legacy/`) a una aplicación React, **página por página y en ramas
@@ -48,7 +53,7 @@ durante toda la migración.
 ```
 src/
 ├── main.jsx                  # Punto de entrada (Router + CarritoProvider + CSS)
-├── App.jsx                   # Definición de las 6 rutas + 404
+├── App.jsx                   # Definición de las rutas (8: 7 vistas + 404)
 ├── styles.css                # CSS del sitio original (reutilizado tal cual)
 ├── data/                     # Datos simulados (PRODUCTOS, CUPONES)
 ├── lib/                      # Lógica de negocio PURA (sin DOM ni React)
