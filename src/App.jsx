@@ -6,6 +6,7 @@ import Detalle from "./pages/Detalle.jsx";
 import Carrito from "./pages/Carrito.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import Ordenes from "./pages/Ordenes.jsx";
+import Admin from "./pages/Admin.jsx";
 import NoEncontrada from "./pages/NoEncontrada.jsx";
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/ordenes" element={<Ordenes />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NoEncontrada />} />
       </Route>
     </Routes>
