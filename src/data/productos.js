@@ -1,8 +1,12 @@
 /**
- * Colección simulada de productos (EP1: sin backend).
- * Migrada tal cual desde legacy/js/data.js para no alterar los datos.
- * Las rutas de imagen se actualizaron para que cada producto muestre una
- * fotografía acorde (ver public/assets/img/CREDITOS.md).
+ * Fuente de datos simulada de productos (EP2: sin backend).
+ * Migrada desde legacy/js/data.js para no alterar los datos; las rutas de imagen
+ * se actualizaron para que cada producto muestre una fotografía acorde
+ * (ver public/assets/img/CREDITOS.md).
+ *
+ * Además del arreglo PRODUCTOS, el módulo expone las operaciones CRUD
+ * (Crear, Leer, Actualizar, Eliminar) que la EP2 pide sobre el archivo de datos.
+ * Las vistas siguen leyendo PRODUCTOS directamente para renderizar.
  */
 export const PRODUCTOS = [
   {
@@ -152,3 +156,128 @@ export const PRODUCTOS = [
     },
   },
 ];
+
+// ---------------------------------------------------------------------------
+// CRUD sobre la colección simulada (actúa como la "tabla" en memoria).
+// Convención de retorno de escritura, igual que la capa lib/:
+//   { exito: boolean, producto: object|null, mensaje: string }
+// ---------------------------------------------------------------------------
+
+/** Categorías admitidas por el catálogo. */
+export const CATEGORIAS = ["consolas", "perifericos", "accesorios", "sillas"];
+
+/** Estado inicial de la colección, para poder reiniciarla (útil en pruebas). */
+const SEMILLA = JSON.parse(JSON.stringify(PRODUCTOS));
+
+/** Siguiente id disponible (mayor id actual + 1). */
+function siguienteId() {
+  return PRODUCTOS.reduce((maximo, producto) => Math.max(maximo, producto.id), 0) + 1;
+}
+
+/** Valida un producto completo. Devuelve un mensaje de error o null si es válido. */
+function validarProducto(producto) {
+  if (!producto.nombre || !String(producto.nombre).trim()) {
+    return "El nombre del producto es obligatorio.";
+  }
+  if (!producto.marca || !String(producto.marca).trim()) {
+    return "La marca es obligatoria.";
+  }
+  if (!CATEGORIAS.includes(producto.categoria)) {
+    return `Categoría inválida. Debe ser una de: ${CATEGORIAS.join(", ")}.`;
+  }
+  if (
+    typeof producto.precio !== "number" ||
+    Number.isNaN(producto.precio) ||
+    producto.precio < 0
+  ) {
+    return "El precio debe ser un número mayor o igual a 0.";
+  }
+  if (
+    typeof producto.stockDisponible !== "number" ||
+    Number.isNaN(producto.stockDisponible) ||
+    producto.stockDisponible < 0
+  ) {
+    return "El stock debe ser un número mayor o igual a 0.";
+  }
+  return null;
+}
+
+/** LEER: devuelve una copia del listado completo de productos. */
+export function listarProductos() {
+  return [...PRODUCTOS];
+}
+
+/** LEER: busca un producto por id (acepta número o string). null si no existe. */
+export function obtenerProductoPorId(id) {
+  return PRODUCTOS.find((producto) => producto.id === Number(id)) || null;
+}
+
+/**
+ * CREAR: agrega un producto nuevo con id autogenerado.
+ * @returns {{ exito: boolean, producto: object|null, mensaje: string }}
+ */
+export function crearProducto(datos = {}) {
+  const nuevo = {
+    id: siguienteId(),
+    nombre: String(datos.nombre ?? "").trim(),
+    marca: String(datos.marca ?? "").trim(),
+    categoria: datos.categoria,
+    precio: Number(datos.precio),
+    descuentoVigente: datos.descuentoVigente ?? { activo: false, porcentaje: 0 },
+    stockDisponible: datos.stockDisponible === undefined ? 0 : Number(datos.stockDisponible),
+    destacado: Boolean(datos.destacado),
+    imagen: datos.imagen ?? "",
+    descripcion: datos.descripcion ?? "",
+    especificaciones: datos.especificaciones ?? {},
+  };
+
+  const error = validarProducto(nuevo);
+  if (error) return { exito: false, producto: null, mensaje: error };
+
+  PRODUCTOS.push(nuevo);
+  return {
+    exito: true,
+    producto: nuevo,
+    mensaje: `Producto "${nuevo.nombre}" creado con id ${nuevo.id}.`,
+  };
+}
+
+/**
+ * ACTUALIZAR: modifica los campos indicados de un producto existente.
+ * El id no se puede cambiar (se ignora si viene en `cambios`).
+ * @returns {{ exito: boolean, producto: object|null, mensaje: string }}
+ */
+export function actualizarProducto(id, cambios = {}) {
+  const indice = PRODUCTOS.findIndex((producto) => producto.id === Number(id));
+  if (indice === -1) {
+    return { exito: false, producto: null, mensaje: `No existe un producto con id ${id}.` };
+  }
+
+  const { id: _idIgnorado, ...permitidos } = cambios || {};
+  const actualizado = { ...PRODUCTOS[indice], ...permitidos };
+
+  const error = validarProducto(actualizado);
+  if (error) return { exito: false, producto: PRODUCTOS[indice], mensaje: error };
+
+  PRODUCTOS[indice] = actualizado;
+  return { exito: true, producto: actualizado, mensaje: `Producto ${actualizado.id} actualizado.` };
+}
+
+/**
+ * ELIMINAR: quita un producto de la colección por id.
+ * @returns {{ exito: boolean, producto: object|null, mensaje: string }}
+ */
+export function eliminarProducto(id) {
+  const indice = PRODUCTOS.findIndex((producto) => producto.id === Number(id));
+  if (indice === -1) {
+    return { exito: false, producto: null, mensaje: `No existe un producto con id ${id}.` };
+  }
+
+  const [eliminado] = PRODUCTOS.splice(indice, 1);
+  return { exito: true, producto: eliminado, mensaje: `Producto "${eliminado.nombre}" eliminado.` };
+}
+
+/** Restaura la colección a su estado inicial (aísla las pruebas entre sí). */
+export function restablecerProductos() {
+  PRODUCTOS.splice(0, PRODUCTOS.length, ...JSON.parse(JSON.stringify(SEMILLA)));
+}
