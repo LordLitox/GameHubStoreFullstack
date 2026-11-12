@@ -5,13 +5,14 @@
 | Campo | Valor |
 | --- | --- |
 | **Producto** | GameHub Store — aplicación web SPA |
-| **Versión del documento** | 2.0 |
-| **Fecha** | 19 de octubre de 2026 |
+| **Versión del documento** | 3.0 |
+| **Fecha** | 12 de noviembre de 2026 |
 | **Asignatura** | Desarrollo FullStack II (DSY1104) |
-| **Entrega** | Evaluación Parcial 2 |
+| **Entrega** | Evaluación Parcial 3 |
 | **Equipo** | 3 integrantes (ver historial de *commits* del repositorio) |
-| **Repositorio** | https://github.com/LordLitox/GameHubStoreFullstack |
-| **Estado** | Aprobado para la entrega EP2 |
+| **Repositorio frontend** | https://github.com/LordLitox/GameHubStoreFullstack |
+| **Repositorio backend** | https://github.com/LordLitox/GameHubStoreFullstack-Backend |
+| **Estado** | Aprobado para la entrega EP3 |
 
 ---
 
@@ -25,33 +26,40 @@ servir como contrato de referencia entre el equipo de desarrollo y la evaluació
 del curso: define **qué** debe hacer el sistema, bajo **qué restricciones** y
 **cómo se verifica** cada requisito.
 
-El documento describe la aplicación React + Vite entregada en la Evaluación
-Parcial 2, resultado de la migración del sitio HTML/CSS/JS vanilla desarrollado
-en la Evaluación Parcial 1 (cuyo proceso queda registrado en `MIGRACION.md`).
+El documento describe la aplicación React + Vite **integrada con el backend de
+microservicios** en la Evaluación Parcial 3. La migración del sitio HTML/CSS/JS
+vanilla de la Evaluación Parcial 1 a React queda registrada en `MIGRACION.md`.
+El catálogo de endpoints y el contrato de datos entre frontend y backend se
+documentan en los anexos de la entrega de la EP3 (Documentación de APIs e
+Integración).
 
 ### 1.2 Alcance
 
-El sistema es una **aplicación de una sola página (SPA)** que simula el flujo
-completo de compra de productos gamer **sin backend, sin base de datos y sin
-pasarela de pago real**:
+El sistema es una **aplicación de una sola página (SPA)** que cubre el flujo
+completo de compra de productos gamer. A partir de la **Evaluación Parcial 3
+(EP3)** el frontend React deja de usar datos simulados y **se integra con un
+backend de microservicios Spring Boot** a través de un API Gateway:
 
-1. Navegar la portada y el catálogo de productos.
+1. Navegar la portada y el catálogo de productos (datos reales del backend).
 2. Filtrar y ordenar el catálogo.
-3. Consultar la ficha de un producto.
+3. Consultar la ficha de un producto, con sus reseñas aprobadas.
 4. Armar y editar un carrito de compras.
-5. Aplicar cupones de descuento y calcular totales.
-6. Completar un formulario de checkout con validación en tiempo real.
-7. Revisar el historial de pedidos y solicitar una garantía post-venta.
-8. Administrar el catálogo y los cupones con operaciones CRUD desde un panel de
-   administración (solo en memoria).
+5. Validar y aplicar cupones contra el servidor y calcular totales.
+6. Iniciar sesión o registrarse; la sesión persiste y define los permisos.
+7. Completar un checkout con validación en tiempo real que **crea la orden real**.
+8. Revisar el historial de pedidos propios y solicitar una garantía post-venta.
+9. Administrar el catálogo, las categorías y las promociones desde el panel
+   `/admin` (rol Administrador), con persistencia en el backend.
+10. Gestionar pedidos, pagos, despachos e inventario desde el panel `/vendedor`
+    (rol Vendedor).
 
-Los datos se mantienen en memoria (`src/data/`) y el estado del carrito se
-persiste en el navegador con `localStorage`.
+El **estado del carrito y la sesión** se persisten en el navegador con
+`localStorage`; los **datos de negocio** (productos, stock, órdenes, usuarios)
+viven en el backend.
 
-**Fuera de alcance (EP2):** backend y API REST, autenticación de usuarios,
-pagos reales, correos transaccionales, inventario real y buscador de texto
-libre. El panel de administración existe, pero opera solo en memoria (sin
-persistencia ni control de acceso). Estos puntos se detallan en el anexo C.
+**Fuera de alcance (EP3):** pasarela de pago real (el pago sigue siendo
+simulado), correos transaccionales, despliegue en la nube del backend y buscador
+de texto libre. Se detallan en el anexo C.
 
 ### 1.3 Definiciones y acrónimos
 
@@ -111,7 +119,10 @@ Se compila como un sitio estático (`npm run build` → `dist/`) y se ejecuta
 | **M6. Checkout** | Datos de despacho, validación y confirmación. | RF-37 – RF-44 |
 | **M7. Post-venta** | Historial de pedidos y solicitud de garantía. | RF-45 – RF-49 |
 | **M8. Persistencia** | Estado del carrito y del cupón en `localStorage`. | RF-50 – RF-53 |
-| **M9. Gestión de datos (CRUD)** | Panel `/admin` y operaciones Crear, Leer, Actualizar y Eliminar sobre la colección simulada. | RF-54 – RF-59 |
+| **M9. Gestión de datos (CRUD)** | Panel `/admin` y operaciones Crear, Leer, Actualizar y Eliminar sobre los productos y cupones del backend. | RF-54 – RF-59 |
+| **M10. Integración con el backend** | Capa de servicios HTTP única hacia el API Gateway; las vistas consumen datos reales. | RF-60 – RF-66 |
+| **M11. Autenticación y permisos** | Sesión con JWT, login/registro, restricción de rutas y menú por rol. | RF-67 – RF-71 |
+| **M12. Panel del vendedor** | Gestión de órdenes, pagos, despachos e inventario (rol OPERADOR). | RF-72 – RF-75 |
 
 ### 2.3 Características de los usuarios
 
@@ -263,6 +274,37 @@ Prioridad: **A** = imprescindible, **M** = importante, **B** = deseable.
 | RF-52 | El cupón activo se guarda al aplicarse y se elimina del almacenamiento al quitarse o vaciar el carrito. | M |
 | RF-53 | Si el contenido almacenado está corrupto o no es JSON válido, la aplicación parte con el carrito vacío sin fallar. | M |
 
+#### M10 — Integración con el backend
+
+| ID | Requisito | Prioridad |
+| --- | --- | --- |
+| RF-60 | Todo el acceso a datos pasa por una capa de servicios única (`src/services/`) que habla con el API Gateway en la URL base versionada `/api/v1`, configurable con `VITE_API_URL`. | A |
+| RF-61 | El cliente HTTP adjunta la cabecera `Authorization: Bearer <token>` en las peticiones autenticadas y la omite en las públicas. | A |
+| RF-62 | Las respuestas de error del backend `{ mensaje, errores }` se normalizan a un objeto con `estado`, `errores`, `esSinSesion` y `esSinPermiso`. | A |
+| RF-63 | El catálogo, la ficha del producto, las reseñas, el stock y las categorías que muestran las vistas provienen del backend, no de datos simulados. | A |
+| RF-64 | La validación de cupón se realiza contra el servidor; un cupón inexistente o vencido informa el motivo sin lanzar una excepción no controlada. | A |
+| RF-65 | El checkout crea una orden real en el backend (con su pago simulado) y muestra el número y el estado de pago que devuelve el servidor. | A |
+| RF-66 | Las vistas muestran estados de **carga** y de **error con reintento** mientras esperan la respuesta del backend. | M |
+
+#### M11 — Autenticación y permisos
+
+| ID | Requisito | Prioridad |
+| --- | --- | --- |
+| RF-67 | El usuario puede iniciar sesión con correo y contraseña; el sistema guarda el token y el usuario de la sesión. | A |
+| RF-68 | El usuario puede registrarse como cliente; al registrarse queda con sesión iniciada. | M |
+| RF-69 | La sesión sobrevive a recargar la página (rehidratación desde `localStorage`) y se cierra sola si el backend responde 401. | A |
+| RF-70 | Las rutas `/checkout` y `/ordenes` exigen rol CLIENTE; `/admin`, rol ADMIN; `/vendedor`, roles OPERADOR o ADMIN. | A |
+| RF-71 | El menú de la cabecera se filtra por rol y permite cerrar la sesión. | M |
+
+#### M12 — Panel del vendedor
+
+| ID | Requisito | Prioridad |
+| --- | --- | --- |
+| RF-72 | El vendedor ve una bandeja de órdenes con su estado de pago y de despacho, filtrable por estado. | M |
+| RF-73 | El vendedor puede confirmar o anular un pago pendiente. | M |
+| RF-74 | El vendedor puede generar un despacho y avanzar su estado (despachado, en tránsito, entregado). | M |
+| RF-75 | El vendedor puede consultar el stock y registrar movimientos de inventario (ingreso, salida, ajuste). | B |
+
 ### 3.3 Reglas de negocio
 
 | ID | Regla | Requisito relacionado |
@@ -278,6 +320,10 @@ Prioridad: **A** = imprescindible, **M** = importante, **B** = deseable.
 | RN-09 | Región y método de pago son listas obligatorias; comuna y dirección requieren al menos 4 caracteres. | RF-38, RF-39 |
 | RN-10 | La garantía legal cubre hasta 180 días corridos desde la recepción, sin fechas futuras. | RF-47 |
 | RN-11 | La descripción de la falla requiere al menos 20 caracteres. | RF-49 |
+| RN-12 | El descuento visible de un producto se deriva de `precioNormal` y `precio` del backend (porcentaje = `round((1 − precio/precioNormal) × 100)`). | RF-63 |
+| RN-13 | El nombre del rol se muestra según la pauta: `ADMIN`=Administrador, `OPERADOR`=Vendedor, `CLIENTE`=Cliente. El enum del backend no se renombra. | RF-71 |
+| RN-14 | Los medios de pago del formulario se traducen al enum del backend: `webpay`/`mach` → `DEBITO`, `transferencia` → `TRANSFERENCIA`. | RF-65 |
+| RN-15 | La protección real de un endpoint la aplica el backend por rol; ocultar un enlace en el frontend es solo usabilidad. | RF-70 |
 
 ### 3.4 Requisitos no funcionales
 
@@ -293,25 +339,30 @@ Prioridad: **A** = imprescindible, **M** = importante, **B** = deseable.
 | RNF-08 | Localización | Interfaz en español de Chile y montos formateados como CLP sin decimales. | Uso de `Intl.NumberFormat("es-CL")`. |
 | RNF-09 | Retroalimentación | Toda acción relevante entrega respuesta visual o textual (éxito, error o estado vacío) con `role="alert"` o `role="status"`. | Inspección de las vistas y de las pruebas de páginas. |
 | RNF-10 | Portabilidad | El build debe ser un sitio estático desplegable en cualquier hosting. | `npm run build` genera `dist/`. |
+| RNF-11 | Tolerancia a fallos de red | Si el backend no responde, la interfaz muestra un aviso con reintento en lugar de quedar en blanco; el carrito sigue usable con datos locales de respaldo. | Revisión de los estados de error y del respaldo de catálogo. |
+| RNF-12 | Seguridad | La sesión usa JWT en `localStorage`; el frontend nunca decide la autorización por sí solo. | Humo HTTP: 401 sin token y 403 por rol en endpoints protegidos. |
 
 ### 3.5 Interfaces externas
 
 | Interfaz | Descripción |
 | --- | --- |
 | **Usuario (UI)** | Interfaz web en español, tema oscuro "Vitrina Oscura", componentes Bootstrap (navbar, card, table, form, alert, modal) sobre variables de marca. |
-| **Navegador** | Persistencia mediante `localStorage` del dominio; usa `window.alert` como retroalimentación de acciones puntuales. |
-| **Red** | Sin dependencias en tiempo de ejecución (fuentes e imágenes servidas localmente desde `public/assets/`). |
+| **Navegador** | Persistencia mediante `localStorage` del dominio (carrito y sesión); usa `window.alert` como retroalimentación de acciones puntuales. |
+| **API (HTTP/JSON)** | El frontend consume el **API Gateway** de microservicios en `http://localhost:8080/api/v1` (configurable con `VITE_API_URL`), con autenticación por JWT. |
+| **Red** | Requiere el backend en ejecución para los datos de negocio; las imágenes se sirven localmente desde `public/assets/`. |
 | **Sistema de archivos** | Solo en tiempo de desarrollo: `npm run build` produce `dist/`. |
 
 ### 3.6 Modelo de datos
 
 | Entidad | Campos | Origen |
 | --- | --- | --- |
-| **Producto** | `id`, `nombre`, `marca`, `categoria`, `precio`, `descuentoVigente {activo, porcentaje}`, `stockDisponible`, `destacado`, `imagen`, `descripcion`, `especificaciones` | `src/data/productos.js` (8 productos) |
-| **Cupón** | `codigo`, `porcentaje`, `topeMaximo`, `expira` | `src/data/cupones.js` (2 cupones) |
+| **Producto** | `id`, `nombre`, `marca`, `categoria`, `precio`, `descuentoVigente {activo, porcentaje}`, `stockDisponible`, `destacado`, `imagen`, `descripcion`, `especificaciones` | `product-service` + `inventory-service` vía el Gateway (adaptado por `adaptadores.js`) |
+| **Cupón** | `codigo`, `porcentaje`, `topeMaximo`, `expira` | `promotion-service` |
 | **Línea de carrito** | `id`, `nombre`, `marca`, `categoria`, `precio` (final), `precioOriginal`, `imagen`, `stockDisponible`, `cantidad` | Derivada por `agregarAlCarrito()` |
 | **Cupón activo** | Copia del cupón aplicado | Estado global + `localStorage` |
-| **Orden / Reseña simulada** | Datos de demostración de solo lectura | `src/pages/Ordenes.jsx`, `src/pages/Detalle.jsx` |
+| **Usuario / sesión** | `id`, `nombre`, `email`, `rol`, `token` | `auth-service` + `localStorage` |
+| **Orden** | `numero`, `estado`, `subtotal`, `descuento`, `total`, `lineas`, `pago`, `despacho` | `order-service` |
+| **Reseña** | `id`, `autor`, `puntuacion`, `comentario`, `fecha`, `estado` | `review-service` |
 
 **Almacenamiento local**
 
@@ -319,19 +370,25 @@ Prioridad: **A** = imprescindible, **M** = importante, **B** = deseable.
 | --- | --- | --- |
 | `gh_carrito_v1` | Arreglo JSON de líneas de carrito. | Se escribe en cada cambio; se vacía al confirmar la compra o vaciar. |
 | `gh_cupon_activo_v1` | Objeto JSON del cupón aplicado. | Se escribe al aplicar; se elimina al quitar o vaciar. |
+| `gh_sesion_v1` | `{ token, usuario }` de la sesión. | Se escribe al entrar; se elimina al cerrar sesión o al recibir un 401. |
 
 ### 3.7 Vistas y rutas
 
 | Vista | Ruta | Requisitos |
 | --- | --- | --- |
-| Inicio | `/` | RF-07 – RF-10 |
-| Catálogo | `/catalogo` | RF-11 – RF-17 |
-| Detalle de producto | `/detalle/:id` | RF-18 – RF-26 |
-| Carrito | `/carrito` | RF-27 – RF-36 |
-| Checkout | `/checkout` | RF-37 – RF-44 |
-| Mis pedidos / Post-venta | `/ordenes` | RF-45 – RF-49 |
-| Administración | `/admin` | RF-54 – RF-59 |
+| Inicio | `/` | RF-07 – RF-10, RF-63 |
+| Catálogo | `/catalogo` | RF-11 – RF-17, RF-63 |
+| Detalle de producto | `/detalle/:id` | RF-18 – RF-26, RF-63 |
+| Carrito | `/carrito` | RF-27 – RF-36, RF-64 |
+| Checkout | `/checkout` (CLIENTE) | RF-37 – RF-44, RF-65, RF-70 |
+| Mis pedidos / Post-venta | `/ordenes` (CLIENTE) | RF-45 – RF-49, RF-65, RF-70 |
+| Ingreso / Registro | `/ingresar` | RF-67 – RF-69 |
+| Panel del vendedor | `/vendedor` (OPERADOR/ADMIN) | RF-72 – RF-75, RF-70 |
+| Administración | `/admin` (ADMIN) | RF-54 – RF-59, RF-66, RF-70 |
 | Página no encontrada | `*` | RF-05 |
+
+Las rutas con paréntesis exigen el rol indicado (guardia `RutaProtegida`); el
+backend vuelve a validar el rol en cada endpoint.
 
 ---
 
@@ -347,6 +404,10 @@ Prioridad: **A** = imprescindible, **M** = importante, **B** = deseable.
 | **Páginas / integración** | `Carrito` (tabla, cantidades, cupón, estado vacío), `Checkout` (validación en `blur`/`input`, bloqueo y confirmación) y `Admin` (alta, edición, borrado con confirmación, validación de duplicados). | Testing Library + React Router |
 | **Mocks** | `localStorage` en memoria, `window.alert` y `Math.random` (número de orden determinista). | Jasmine spies |
 
+| **Servicios (HTTP)** | `src/services/`: cliente, adaptadores, productos, órdenes, cupones, reseñas y caché de catálogo, con el Gateway simulado. | Jasmine + doble de `fetch` |
+| **Humo HTTP** | Flujo completo contra el backend real por el Gateway (login, catálogo, orden, roles). | `scripts/verificar-flujo-ep3.mjs` (Node) |
+| **Humo de navegador** | Recorrido de la app en vivo por CDP sobre Chrome headless. | `scripts/verificar-navegador-ep3.mjs` |
+
 Las pruebas se ejecutan con **Karma + Jasmine** en **Chrome Headless** y el JSX
 se transforma con **karma-vite**, por lo que el código se ejerce tal como se
 ejecuta en el navegador, sin necesidad de un DOM simulado.
@@ -355,24 +416,31 @@ ejecuta en el navegador, sin necesidad de un DOM simulado.
 
 ```bash
 npm install            # instalar dependencias
-npm test               # 116 pruebas (Karma + Jasmine)
+npm test               # 157 pruebas (Karma + Jasmine)
 npm run test:coverage  # pruebas + reporte de cobertura en coverage/
 npm run build          # build de producción en dist/
+
+# Con el backend y el dev server arriba:
+node scripts/verificar-flujo-ep3.mjs       # humo HTTP contra el Gateway (21 comprobaciones)
+node scripts/verificar-navegador-ep3.mjs   # humo de navegador (14 comprobaciones) + capturas
 ```
 
 ### 4.3 Resultados
 
 | Métrica | Valor |
 | --- | --- |
-| Pruebas ejecutadas | **116 (116 en verde)** |
-| Archivos de prueba | 11 |
-| Cobertura de sentencias | 88,81 % |
-| Cobertura de ramas | 85,71 % |
-| Cobertura de funciones | 88,35 % |
-| Cobertura de líneas | 89,47 % |
+| Pruebas ejecutadas | **157 (157 en verde)** |
+| Archivos de prueba | 14 |
+| Cobertura de sentencias | 82,57 % |
+| Cobertura de ramas | 70,21 % |
+| Cobertura de funciones | 78,91 % |
+| Cobertura de líneas | 84,06 % |
+| Humo HTTP contra el backend real | **21/21** |
+| Humo de navegador (CDP) | **14/14** |
 
-Las cifras describen los 13 módulos que las pruebas cargan (incluida la página
-`Admin.jsx`); el detalle de módulos y del alcance real de la medición está en
+La cobertura bajó respecto de la EP2 porque ahora incluye `src/services/**`
+(el cliente HTTP y las vistas conectadas al backend) y varias ramas de manejo de
+error que se ejercen en el humo, no en las pruebas unitarias. El detalle está en
 [`COBERTURA.md`](COBERTURA.md).
 
 ### 4.4 Matriz de trazabilidad
@@ -381,57 +449,70 @@ Las cifras describen los 13 módulos que las pruebas cargan (incluida la página
 | --- | --- | --- |
 | RF-01 – RF-06 | `components/Layout.jsx`, `components/Cabecera.jsx`, `components/PieSitio.jsx`, `hooks/useTitulo.js`, `App.jsx` | `components/__tests__/Cabecera.test.jsx` |
 | RF-07 – RF-10 | `pages/Inicio.jsx`, `components/TarjetaProducto.jsx` | `components/__tests__/TarjetaProducto.test.jsx` |
-| RF-11 – RF-17 | `pages/Catalogo.jsx` | Pendiente de prueba de render (anexo B) |
-| RF-18 – RF-26 | `pages/Detalle.jsx`, `lib/carrito.js` | `lib/__tests__/carrito.test.js` |
+| RF-11 – RF-17 | `pages/Catalogo.jsx` | Humo de navegador (`verificar-navegador-ep3.mjs`) |
+| RF-18 – RF-26 | `pages/Detalle.jsx`, `lib/carrito.js` | `lib/__tests__/carrito.test.js`, humo de navegador |
 | RF-27 – RF-36 | `pages/Carrito.jsx`, `context/CarritoContext.jsx`, `lib/carrito.js`, `lib/cupones.js` | `pages/__tests__/Carrito.test.jsx`, `context/__tests__/CarritoContext.test.jsx`, `lib/__tests__/cupones.test.js` |
 | RF-37 – RF-44 | `pages/Checkout.jsx`, `lib/validaciones.js` | `pages/__tests__/Checkout.test.jsx`, `lib/__tests__/validaciones.test.js` |
 | RF-45 – RF-49 | `pages/Ordenes.jsx`, `lib/validaciones.js` | `lib/__tests__/validaciones.test.js` |
 | RF-50 – RF-53 | `context/CarritoContext.jsx` | `context/__tests__/CarritoContext.test.jsx` |
-| RF-54 – RF-59 | `pages/Admin.jsx`, `data/productos.js`, `data/cupones.js` | `pages/__tests__/Admin.test.jsx`, `data/__tests__/productos.test.js`, `data/__tests__/cupones.test.js` |
+| RF-54 – RF-59 | `pages/Admin.jsx`, `services/admin.js` | `pages/__tests__/Admin.test.jsx` |
+| RF-60 – RF-66 | `services/cliente.js`, `services/adaptadores.js`, `services/catalogoCache.js`, `hooks/useDatos.js`, `components/EstadoCarga.jsx` | `services/__tests__/cliente.test.js`, `services/__tests__/catalogo.test.js`, humo HTTP |
+| RF-67 – RF-71 | `context/SesionContext.jsx`, `services/sesion.js`, `services/autenticacion.js`, `components/RutaProtegida.jsx`, `pages/Ingresar.jsx` | `pages/__tests__/Sesion.test.jsx`, humo de navegador |
+| RF-72 – RF-75 | `pages/Vendedor.jsx`, `services/operador.js` | Humo HTTP y de navegador |
 | RN-01 – RN-05 | `lib/carrito.js`, `lib/cupones.js` | `lib/__tests__/carrito.test.js`, `lib/__tests__/cupones.test.js` |
 | RN-06 – RN-11 | `lib/validaciones.js` | `lib/__tests__/validaciones.test.js` |
+| RN-12 – RN-15 | `services/adaptadores.js`, `services/cliente.js` | `services/__tests__/adaptadores.test.js`, humo HTTP (401/403) |
 | RNF-01, RNF-02, RNF-09 | `src/styles.css`, páginas y componentes con Bootstrap | Inspección en 375 px y 1280 px |
-| RNF-06 | `karma.conf.cjs` | `npm test`, `npm run test:coverage` |
+| RNF-06, RNF-11 | `karma.conf.cjs`, `components/EstadoCarga.jsx` | `npm test`, `npm run test:coverage`, humo de navegador |
+| RNF-12 | `services/cliente.js`, `components/RutaProtegida.jsx` | Humo HTTP (401 sin token, 403 por rol) |
 
 ---
 
 ## Anexo A — Estructura del proyecto
 
 ```
-GameHubStoreFullstack/
+GameHubStoreFullstack/            # frontend (React + Vite)
 ├── index.html               # Entrada de la SPA (Vite)
 ├── src/
-│   ├── main.jsx             # Bootstrap, estilos, Router y CarritoProvider
-│   ├── App.jsx              # Definición de las rutas
-│   ├── pages/               # 7 vistas (incluida Admin) + 404
-│   ├── components/          # Layout, Cabecera, PieSitio, TarjetaProducto...
-│   ├── context/             # CarritoProvider (useReducer + localStorage)
+│   ├── main.jsx             # Bootstrap, estilos, Router, SesionProvider y CarritoProvider
+│   ├── App.jsx              # Definición de las rutas (con guardias por rol)
+│   ├── pages/               # 9 vistas (Inicio, Catálogo, Detalle, Carrito,
+│   │                        #   Checkout, Órdenes, Ingresar, Vendedor, Admin) + 404
+│   ├── components/          # Layout, Cabecera, PieSitio, TarjetaProducto,
+│   │                        #   RutaProtegida, EstadoCarga
+│   ├── context/             # SesionContext y CarritoContext (useReducer + localStorage)
+│   ├── services/            # Capa HTTP: cliente, adaptadores, módulos por recurso, caché
 │   ├── lib/                 # Lógica de negocio pura + pruebas unitarias
-│   ├── data/                # PRODUCTOS, CUPONES
-│   ├── hooks/               # useTitulo
+│   ├── data/                # Semilla local (respaldo del carrito)
+│   ├── hooks/               # useTitulo, useDatos
 │   └── styles.css           # Tema de marca sobre Bootstrap
 ├── public/assets/           # Imágenes y video
+├── scripts/                 # Humo HTTP y de navegador (EP3)
 ├── ERS.md                   # Este documento
 ├── COBERTURA.md             # Documento de cobertura de pruebas
-├── MIGRACION.md             # Guía histórica de la migración a React
 └── README.md                # Descripción e instrucciones del proyecto
+
+Duoc-Fullstack2-GameHubStore-BackEnd-main/   # backend (14 módulos Maven)
+└── (auth, product, category, inventory, promotion, order, payment,
+     shipping, review, user, warranty, api-gateway, eureka-server, comun)
 ```
 
 ## Anexo B — Trabajo futuro
 
 | Elemento | Descripción |
 | --- | --- |
-| Pruebas de render de páginas | Agregar *smoke tests* para `Inicio`, `Catalogo`, `Detalle`, `Ordenes` y `NoEncontrada` para que entren al reporte de cobertura. |
-| Cobertura de `Admin.jsx` | Ampliar las pruebas del panel de administración hasta cubrir todas las ramas de los formularios (hoy en 64,8 % de líneas). |
+| Cobertura de las vistas conectadas | Ampliar las pruebas de render de las páginas que hoy se verifican con humo (`Catálogo`, `Detalle`, `Órdenes`, `Vendedor`). |
+| Renovación proactiva del token | Renovar el JWT antes de que venza en el frontend, sin esperar a un 401. |
+| Despliegue del backend | Publicar los microservicios en la nube y apuntar `VITE_API_URL` al Gateway remoto. |
 | Video de demostración | Publicar `gamehub-setup-demo.mp4` y sus subtítulos `.es.vtt`. |
-| Backend | Persistir catálogo, órdenes y usuarios en un servicio real, y dar persistencia al panel de administración. |
 
 ## Anexo C — Fuera de alcance
 
-Autenticación y perfiles de usuario, control de acceso al panel de
-administración (que existe, pero es público y sin persistencia), búsqueda de
-texto libre, pagos reales, cálculo de despacho, envío de correos, catálogo
-cargado desde un servicio externo y auditoría de pedidos.
+Pasarela de pago real (el pago sigue siendo simulado), envío de correos
+transaccionales, cálculo de costo de despacho por zona, búsqueda de texto libre,
+despliegue del backend en la nube y auditoría de pedidos. La autenticación,
+el control de acceso por rol y la persistencia del panel de administración, que
+estaban fuera de alcance en la EP2, **ya están implementados** en la EP3.
 
 ## Anexo D — Historial de cambios
 
@@ -439,3 +520,4 @@ cargado desde un servicio externo y auditoría de pedidos.
 | --- | --- | --- |
 | 1.0 | 2026-10-13 | Versión inicial para la Evaluación Parcial 2: requisitos de la aplicación React + Bootstrap, modelo de datos, reglas de negocio y matriz de trazabilidad. |
 | 2.0 | 2026-10-19 | Se incorpora el panel de administración (`/admin`) con CRUD de productos y cupones (M9, RF-54 – RF-59); se actualizan rutas (8), módulos y las cifras de pruebas y cobertura (116 pruebas). |
+| 3.0 | 2026-11-12 | **Evaluación Parcial 3 — integración con el backend.** El frontend deja de usar datos simulados y consume el API Gateway (`/api/v1`). Nuevos módulos M10 (integración, RF-60 – RF-66), M11 (autenticación y permisos, RF-67 – RF-71) y M12 (panel del vendedor, RF-72 – RF-75); nuevas reglas RN-12 – RN-15 y RNF-11 – RNF-12; rutas `/ingresar` y `/vendedor`, guardias por rol y sesión JWT persistente. Pruebas: 157/157, humo HTTP 21/21 y de navegador 14/14; cobertura 82,6 % sentencias. |
