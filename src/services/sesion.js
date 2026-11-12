@@ -115,3 +115,17 @@ export function restablecerSesion() {
     /* sin localStorage no hay nada que borrar */
   }
 }
+
+/**
+ * Vuelve a leer la sesión desde `localStorage`.
+ *
+ * El estado inicial se lee una sola vez, al importar el módulo. Las pruebas
+ * necesitan forzar esa lectura después de preparar su almacén falso, y en la
+ * aplicación sirve para rehidratar tras un evento externo (por ejemplo, otra
+ * pestaña que inició sesión).
+ */
+export function rehidratarSesion() {
+  sesion = leerDeStorage();
+  publicar();
+  return sesionActual();
+}
