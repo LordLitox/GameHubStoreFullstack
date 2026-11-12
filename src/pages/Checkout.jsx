@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTitulo } from "../hooks/useTitulo.js";
 import { useCarrito } from "../context/CarritoContext.jsx";
+import { ordenes as servicioOrdenes, mensajeDeError } from "../services/index.js";
 import { formatearPesosCLP } from "../lib/formato.js";
 import {
   validarNombre,
@@ -26,15 +27,22 @@ const CAMPOS_INICIALES = {
  * + legacy/js/validaciones.js: las REGLAS de validación viven en
  * src/lib/validaciones.js (testeable sin DOM) y acá solo se conectan a los
  * eventos blur/change/submit del formulario.
+ *
+ * EP3 · Parte 6: al confirmar se crea la **orden real** en order-service (que a
+ * su vez registra el pago simulado y descuenta el stock). Ya no se inventa un
+ * número de orden en el navegador: la respuesta del backend trae el número
+ * definitivo y el estado del pago.
  */
 export default function Checkout() {
   useTitulo("Checkout — GameHub Store");
 
   const navigate = useNavigate();
-  const { items, totales, vaciar } = useCarrito();
+  const { items, cupon, totales, vaciar } = useCarrito();
 
   const [campos, setCampos] = useState(CAMPOS_INICIALES);
   const [errores, setErrores] = useState({});
+  const [enviando, setEnviando] = useState(false);
+  const [errorOrden, setErrorOrden] = useState(null);
   const carritoVacio = items.length === 0;
 
   function validarCampo(nombreCampo, valor) {
@@ -86,7 +94,7 @@ export default function Checkout() {
     setErrores((previo) => ({ ...previo, [nombreCampo]: res }));
   }
 
-  function manejarSubmit(evento) {
+  async function manejarSubmit(evento) {
     evento.preventDefault();
 
     if (carritoVacio) {
@@ -111,16 +119,37 @@ export default function Checkout() {
       return;
     }
 
-    // Simular creación de orden exitosa
-    const numeroOrden = "GH-" + Math.floor(100000 + Math.random() * 900000);
-    alert(
-      `¡Orden confirmada exitosamente!\nNúmero: ${numeroOrden}\n` +
-        `Total pagado: ${formatearPesosCLP(totales.total)}\n` +
-        `Enviaremos el seguimiento a: ${campos.email}`
-    );
+    setEnviando(true);
+    setErrorOrden(null);
+    try {
+      const orden = await servicioOrdenes.crear({
+        items,
+        cupon: cupon?.codigo ?? null,
+        metodoPago: campos.metodoPago,
+        despacho: campos,
+      });
 
-    vaciar();
-    navigate("/ordenes");
+      // El pago simulado puede quedar APROBADO o RECHAZADO según las reglas
+      // del backend (por ejemplo, transferencias quedan pendientes). Se informa
+      // el resultado real en vez de asumir que siempre se aprueba.
+      const aprobado = orden.pago?.estado === "APROBADO";
+      alert(
+        `¡Orden confirmada exitosamente!\nNúmero: ${orden.numero}\n` +
+          `Total: ${formatearPesosCLP(orden.total ?? totales.total)}\n` +
+          `Estado del pago: ${orden.pago?.estado ?? "registrado"}\n` +
+          `Enviaremos el seguimiento a: ${campos.email}`
+      );
+
+      vaciar();
+      navigate("/ordenes");
+      return aprobado;
+    } catch (error) {
+      // El backend puede rechazar la orden (stock insuficiente, cupón vencido,
+      // 401 sin sesión…): se muestra su mensaje sin perder el carrito.
+      setErrorOrden(mensajeDeError(error));
+    } finally {
+      setEnviando(false);
+    }
   }
 
   const propsCampo = (nombreCampo) => ({
@@ -302,8 +331,18 @@ export default function Checkout() {
                 </div>
               </fieldset>
 
-              <button type="submit" className="btn btn-primary w-100" disabled={carritoVacio}>
-                Confirmar y Pagar Orden
+              {errorOrden && (
+                <div className="alert alert-danger" role="alert">
+                  <span aria-hidden="true">⚠</span> {errorOrden}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+                disabled={carritoVacio || enviando}
+              >
+                {enviando ? "Procesando pago…" : "Confirmar y Pagar Orden"}
               </button>
             </form>
           </div>

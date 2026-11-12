@@ -1,16 +1,25 @@
 import { Link } from "react-router-dom";
 import { useTitulo } from "../hooks/useTitulo.js";
+import { useDatos } from "../hooks/useDatos.js";
 import TarjetaProducto from "../components/TarjetaProducto.jsx";
-import { PRODUCTOS } from "../data/productos.js";
+import { Cargando, ErrorCarga } from "../components/EstadoCarga.jsx";
+import { catalogo as servicioCatalogo } from "../services/index.js";
 
 /**
  * Portada: hero con video, categorías, destacados de la semana y beneficios.
  * Migrada desde legacy/index.html reutilizando las mismas clases CSS.
+ *
+ * Desde la EP3 los destacados llegan del backend (catálogo + stock) a través de
+ * la caché compartida, en vez de leerse de `src/data/productos.js`.
  */
 export default function Inicio() {
   useTitulo("GameHub Store — Tu tienda gamer de confianza");
 
-  const destacados = PRODUCTOS.filter((p) => p.destacado);
+  const { datos: productos, cargando, error, recargar } = useDatos(
+    () => servicioCatalogo.obtener(),
+    []
+  );
+  const destacados = (productos ?? []).filter((p) => p.destacado);
 
   return (
     <>
@@ -148,13 +157,18 @@ export default function Inicio() {
             </Link>
           </div>
 
-          <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
-            {destacados.map((producto) => (
-              <div className="col" key={producto.id}>
-                <TarjetaProducto producto={producto} />
-              </div>
-            ))}
-          </div>
+          {cargando && <Cargando texto="Cargando destacados…" />}
+          {error && <ErrorCarga mensaje={error} onReintentar={recargar} />}
+
+          {!cargando && !error && (
+            <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+              {destacados.map((producto) => (
+                <div className="col" key={producto.id}>
+                  <TarjetaProducto producto={producto} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

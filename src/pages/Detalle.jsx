@@ -1,44 +1,45 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTitulo } from "../hooks/useTitulo.js";
+import { useDatos } from "../hooks/useDatos.js";
 import { useCarrito } from "../context/CarritoContext.jsx";
-import { PRODUCTOS } from "../data/productos.js";
+import { Cargando, ErrorCarga } from "../components/EstadoCarga.jsx";
+import { productos as servicioProductos, resenas as servicioResenas } from "../services/index.js";
 import { formatearPesosCLP } from "../lib/formato.js";
 import { precioFinalProducto } from "../lib/carrito.js";
 
-// Reseñas simuladas de clientes (datos de demostración, igual que el legacy)
-const RESENAS_SIMULADAS = [
-  {
-    autor: "Felipe R.",
-    puntaje: 5,
-    texto:
-      "Excelente tiempo de respuesta, la batería dura varios días jugando intensamente.",
-    fecha: "Compra verificada — 28 de Agosto, 2026",
-  },
-  {
-    autor: "Martina S.",
-    puntaje: 4,
-    texto:
-      "Muy cómodo para agarre fingertip, liviano y con buen software para configurar los DPI.",
-    fecha: "Compra verificada — 15 de Agosto, 2026",
-  },
-];
+/** Fecha ISO de una reseña en formato legible ("28 de agosto, 2026"). */
+function formatearFecha(fechaISO) {
+  if (!fechaISO) return "";
+  const fecha = new Date(fechaISO);
+  if (Number.isNaN(fecha.getTime())) return String(fechaISO);
+  return fecha.toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" });
+}
 
 /**
  * Ficha de producto: imagen, precios con descuento, stock, selector de
  * cantidad, especificaciones técnicas y reseñas. Migrado desde
  * legacy/detalle.html: el parámetro de URL ?id=X ahora llega por
  * useParams() con la ruta /detalle/:id.
+ *
+ * EP3 · Parte 6: el producto y sus reseñas se piden al backend. Las reseñas ya
+ * no son de mentira: salen de review-service (solo las aprobadas) y el promedio
+ * se calcula con las que devuelve el servidor.
  */
 export default function Detalle() {
   const { id } = useParams();
-  const producto = PRODUCTOS.find((p) => p.id === Number(id));
+
+  const { datos: producto, cargando, error, recargar } = useDatos(
+    () => servicioProductos.detalle(id),
+    [id]
+  );
 
   useTitulo(
-    producto
-      ? `GameHub Store — ${producto.nombre}`
-      : "Producto no encontrado — GameHub Store"
+    producto ? `GameHub Store — ${producto.nombre}` : "GameHub Store — Producto",
+    !cargando
   );
+
+  const { datos: resenas } = useDatos(() => servicioResenas.deProducto(id), [id]);
 
   const { agregar } = useCarrito();
   const [cantidad, setCantidad] = useState(1);
@@ -49,6 +50,29 @@ export default function Detalle() {
     setCantidad(1);
     setErrorStock("");
   }, [id]);
+
+  if (cargando) {
+    return (
+      <div className="seccion">
+        <div className="container">
+          <Cargando texto="Cargando producto…" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="seccion">
+        <div className="container">
+          <ErrorCarga mensaje={error} onReintentar={recargar} />
+          <Link className="btn btn-primary" to="/catalogo">
+            Volver al catálogo
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!producto) {
     return (
@@ -66,6 +90,13 @@ export default function Detalle() {
       </div>
     );
   }
+
+  // Promedio real: 0 cuando todavía no hay reseñas aprobadas.
+  const listaResenas = resenas ?? [];
+  const promedio =
+    listaResenas.length > 0
+      ? listaResenas.reduce((suma, r) => suma + r.puntaje, 0) / listaResenas.length
+      : 0;
 
   const sinStock = producto.stockDisponible <= 0;
 
@@ -222,27 +253,40 @@ export default function Detalle() {
           <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <h2 id="titulo-resenas" className="mb-0">Reseñas de Clientes</h2>
             <span className="badge rounded-pill text-bg-secondary fs-6">
-              ★ 4.8 / 5.0 (Promedio)
+              {listaResenas.length > 0
+                ? `★ ${promedio.toFixed(1)} / 5.0 (${listaResenas.length} ${
+                    listaResenas.length === 1 ? "reseña" : "reseñas"
+                  })`
+                : "Sin reseñas todavía"}
             </span>
           </div>
 
-          <div className="d-flex flex-column gap-2">
-            {RESENAS_SIMULADAS.map((resena) => (
-              <article key={resena.autor} className="tarjeta-producto card">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center mb-1">
-                    <strong className="text-body-emphasis">{resena.autor}</strong>
-                    <span style={{ color: "var(--color-acento)" }}>
-                      {"★".repeat(resena.puntaje)}
-                      {"☆".repeat(5 - resena.puntaje)} ({resena.puntaje}/5)
-                    </span>
+          {listaResenas.length === 0 ? (
+            <div className="alert alert-info" role="status">
+              Este producto aún no tiene reseñas aprobadas. Las opiniones de los
+              clientes aparecen aquí una vez que el equipo las revisa.
+            </div>
+          ) : (
+            <div className="d-flex flex-column gap-2">
+              {listaResenas.map((resena) => (
+                <article key={resena.id} className="tarjeta-producto card">
+                  <div className="card-body">
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <strong className="text-body-emphasis">{resena.autor}</strong>
+                      <span style={{ color: "var(--color-acento)" }}>
+                        {"★".repeat(resena.puntaje)}
+                        {"☆".repeat(5 - resena.puntaje)} ({resena.puntaje}/5)
+                      </span>
+                    </div>
+                    <p className="mb-0 small">{resena.texto}</p>
+                    <small className="text-body-secondary">
+                      {resena.fecha ? `Compra verificada — ${formatearFecha(resena.fecha)}` : ""}
+                    </small>
                   </div>
-                  <p className="mb-0 small">{resena.texto}</p>
-                  <small className="text-body-secondary">{resena.fecha}</small>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Modal de Bootstrap con las especificaciones completas */}

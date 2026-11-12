@@ -20,6 +20,8 @@ export * as autenticacion from "./autenticacion.js";
 export * as usuarios from "./usuarios.js";
 export * as admin from "./admin.js";
 export * as operador from "./operador.js";
+// Caché del catálogo (Parte 6): la comparten Inicio, Catálogo y el carrito.
+export * as catalogo from "./catalogoCache.js";
 
 export { ErrorApi, mensajeDeError, URL_API } from "./cliente.js";
 export { sesionActual, usuarioActual, tokenActual, alCambiarSesion } from "./sesion.js";

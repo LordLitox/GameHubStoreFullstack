@@ -1,22 +1,33 @@
 import { render } from "@testing-library/react";
 import { MemoryRouter, Routes } from "react-router-dom";
 import { CarritoProvider } from "../../context/CarritoContext.jsx";
+import { SesionProvider } from "../../context/SesionContext.jsx";
+import { rehidratarSesion, restablecerSesion } from "../../services/sesion.js";
 
 /**
- * Utilidades compartidas por las pruebas de componentes (EP2).
+ * Utilidades compartidas por las pruebas de componentes (EP2/EP3).
  * No es un archivo de pruebas: solo lo importan los *.test.jsx.
  */
 
-// Mismas claves que usa CarritoContext (y el sitio legacy).
+// Mismas claves que CarritoContext (y el sitio legacy).
 export const CLAVE_CARRITO = "gh_carrito_v1";
 export const CLAVE_CUPON = "gh_cupon_activo_v1";
+// Clave de la sesión (EP3 · Parte 4), igual que src/services/sesion.js.
+export const CLAVE_SESION = "gh_sesion_v1";
 
 // Almacén falso de la prueba en curso, para no espiar dos veces el mismo método.
 let almacenActual = null;
 
-// Jasmine restaura los spies entre specs, así que el almacén se descarta.
+/**
+ * Jasmine restaura los spies entre specs, así que el almacén se descarta.
+ *
+ * La sesión (EP3 · Parte 4) vive en un módulo que lee `localStorage` una sola
+ * vez, al importarse: sin este reinicio, el primer spec que inicia sesión
+ * dejaría la sesión "pegada" para todos los siguientes del mismo navegador.
+ */
 afterEach(() => {
   almacenActual = null;
+  restablecerSesion();
 });
 
 /**
@@ -67,14 +78,19 @@ export function mockAlert() {
 }
 
 /**
- * Monta un componente con el router y el CarritoContext que la app le da
- * en producción, para poder probarlo en condiciones reales.
+ * Monta un componente con el router y los contextos que la app le da
+ * en producción (sesión + carrito), para poder probarlo en condiciones reales.
  */
 export function renderConProveedores(ui, { ruta = "/", almacen } = {}) {
   const almacenamiento = almacen || mockLocalStorage();
+  // La sesión se lee al importar el módulo: hay que releerla ya con el
+  // almacén de esta prueba en su sitio, o el `precargar` no surtiría efecto.
+  rehidratarSesion();
   const resultado = render(
     <MemoryRouter initialEntries={[ruta]}>
-      <CarritoProvider>{ui}</CarritoProvider>
+      <SesionProvider>
+        <CarritoProvider>{ui}</CarritoProvider>
+      </SesionProvider>
     </MemoryRouter>
   );
   return { ...resultado, almacenamiento };
@@ -86,11 +102,14 @@ export function renderConProveedores(ui, { ruta = "/", almacen } = {}) {
  */
 export function renderConRutas(rutas, { ruta = "/", almacen } = {}) {
   const almacenamiento = almacen || mockLocalStorage();
+  rehidratarSesion();
   const resultado = render(
     <MemoryRouter initialEntries={[ruta]}>
-      <CarritoProvider>
-        <Routes>{rutas}</Routes>
-      </CarritoProvider>
+      <SesionProvider>
+        <CarritoProvider>
+          <Routes>{rutas}</Routes>
+        </CarritoProvider>
+      </SesionProvider>
     </MemoryRouter>
   );
   return { ...resultado, almacenamiento };

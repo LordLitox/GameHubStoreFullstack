@@ -7,14 +7,33 @@ import {
   mockLocalStorage,
   renderConRutas,
 } from "../../__tests__/ayudas/render.jsx";
+import { esperarHasta, simularFetch } from "../../__tests__/ayudas/api.js";
 
 /**
- * Página Checkout: validación en vivo del formulario y confirmación de la
- * orden. Math.random y window.alert están mockeados para que el resultado sea
- * determinista.
+ * Página Checkout: validación en vivo del formulario y creación real de la
+ * orden. Desde la EP3 · Parte 6 la orden la crea order-service: el Gateway se
+ * simula y la prueba espera la respuesta asíncrona. `window.alert` está
+ * mockeado para observar el aviso sin abrir diálogos.
  */
 
 const NOMBRE_PRODUCTO = "Notebook Gamer Asus ROG Strix G16";
+
+/** Respuesta de `POST /ordenes`: la orden con su pago aprobado. */
+function ordenCreadaDto(overrides = {}) {
+  return {
+    id: 20,
+    numero: "GH-2026-000020",
+    creadaEn: "2026-09-02T10:00:00",
+    estado: "PAGADA",
+    subtotal: 100000,
+    descuento: 0,
+    total: 100000,
+    lineas: [],
+    pago: { estado: "APROBADO" },
+    despacho: null,
+    ...overrides,
+  };
+}
 
 function lineaGuardada() {
   return {
@@ -56,9 +75,13 @@ function completarFormulario() {
 
 describe("Checkout", () => {
   let alerta;
+  let api;
 
   beforeEach(() => {
     alerta = mockAlert();
+    // El Gateway simulado responde la creación de la orden con un pago aprobado.
+    api = simularFetch();
+    api.responder("POST", "/ordenes", ordenCreadaDto());
   });
 
   it("avisa y bloquea el envío cuando el carrito está vacío", () => {
@@ -125,25 +148,46 @@ describe("Checkout", () => {
     expect(screen.getByLabelText("Nombre y Apellido *")).toBeTruthy();
   });
 
-  it("confirma la orden, avisa al usuario, vacía el carrito y navega a /ordenes", () => {
+  it("crea la orden en el backend, avisa al usuario, vacía el carrito y navega a /ordenes", async () => {
     const almacen = mockLocalStorage();
     almacen.precargar(CLAVE_CARRITO, [lineaGuardada()]);
     renderCheckout(almacen);
 
-    // Número de orden determinista: Math.floor(100000 + 0.123456 * 900000) = 211110.
-    spyOn(Math, "random").and.returnValue(0.123456);
-
     completarFormulario();
     fireEvent.click(screen.getByRole("button", { name: "Confirmar y Pagar Orden" }));
+
+    // La orden la confirma el servidor: se espera a que llegue la navegación.
+    await esperarHasta(() => screen.queryByText("Página de órdenes"));
+
+    // Se envió la orden con las líneas del carrito y el método de pago mapeado.
+    expect(api.ultimaLlamada().metodo).toBe("POST");
+    expect(api.ultimaLlamada().ruta).toBe("/ordenes");
+    expect(api.ultimaLlamada().cuerpo.lineas).toEqual([{ productoId: 1, cantidad: 1 }]);
+    expect(api.ultimaLlamada().cuerpo.metodoPago).toBe("DEBITO");
 
     expect(alerta).toHaveBeenCalledTimes(1);
     const mensaje = alerta.calls.mostRecent().args[0];
     expect(mensaje).toContain("¡Orden confirmada exitosamente!");
-    expect(mensaje).toContain("Número: GH-211110");
-    expect(mensaje).toContain("Total pagado: $100.000");
+    expect(mensaje).toContain("Número: GH-2026-000020");
     expect(mensaje).toContain("ana@ejemplo.cl");
 
-    expect(screen.getByText("Página de órdenes")).toBeTruthy();
     expect(almacen.leer(CLAVE_CARRITO)).toEqual([]);
+  });
+
+  it("muestra el mensaje del backend si la orden no se puede crear (stock)", async () => {
+    const almacen = mockLocalStorage();
+    almacen.precargar(CLAVE_CARRITO, [lineaGuardada()]);
+    api.responderConError("POST", "/ordenes", 400, {
+      mensaje: "No hay stock suficiente para completar la compra.",
+    });
+    renderCheckout(almacen);
+
+    completarFormulario();
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar y Pagar Orden" }));
+
+    await esperarHasta(() => screen.queryByRole("alert")?.textContent.includes("No hay stock suficiente"));
+    expect(screen.getByRole("alert").textContent).toContain("No hay stock suficiente");
+    // El carrito NO se vacía cuando la orden no se pudo crear.
+    expect(almacen.leer(CLAVE_CARRITO).length).toBe(1);
   });
 });
