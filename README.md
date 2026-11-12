@@ -4,37 +4,46 @@ Plataforma web de comercio electrónico orientada a la venta de hardware,
 periféricos y accesorios gamer de alto rendimiento. Proyecto desarrollado para
 la asignatura **Desarrollo FullStack II (DSY1104)**.
 
-El proyecto simula un flujo completo de adquisición de productos tecnológicos
-sin APIs externas ni bases de datos: navegación entre vistas, filtrado
-interactivo, cálculo comercial del carrito, cupones de descuento y
-persistencia vía `localStorage`.
+El proyecto cubre un flujo completo de adquisición de productos tecnológicos:
+navegación entre vistas, filtrado interactivo, cálculo comercial del carrito,
+cupones de descuento y persistencia vía `localStorage`. Desde la **EP3** el
+frontend se integra con un **backend de microservicios** (API Gateway en
+`/api/v1`), con autenticación JWT y control de acceso por rol.
 
-## Estado actual: aplicación React (migración completada)
+## Estado actual: aplicación React integrada (EP3)
 
-La versión vigente del sitio es la aplicación **React 18 + Vite 5**: las 6
-vistas del sitio original ya están migradas (más el **panel de administración**
-`/admin` incorporado en la EP2), con diseño responsivo sobre **Bootstrap 5.3**
-y 116 pruebas automatizadas en verde. La migración está
-**cerrada**: el sitio HTML/CSS/JS vanilla de la EP1 se eliminó del repositorio
-al completarse, y el proceso seguido queda documentado en
+La versión vigente es la aplicación **React 18 + Vite 5** con las 9 vistas
+(catálogo, ficha, carrito, checkout, pedidos, ingreso, panel del vendedor
+`/vendedor` y panel de administración `/admin`), diseño responsivo sobre
+**Bootstrap 5.3** y **157 pruebas automatizadas en verde**. La EP3 conectó las
+vistas al backend de microservicios: la capa `src/services/` habla con el API
+Gateway, la sesión JWT y los roles protegen las rutas, y el checkout crea
+órdenes reales. La migración HTML→React quedó documentada en
 **[MIGRACION.md](MIGRACION.md)**.
 
 ### Documentación
 
 | Documento | Contenido |
 | --- | --- |
-| **[ERS.md](ERS.md)** | Especificación de requisitos de software: funcionales, no funcionales, reglas de negocio y matriz de trazabilidad. |
+| **[ERS.md](ERS.md)** | Especificación de requisitos de software (v3.0): funcionales, no funcionales, reglas de negocio y matriz de trazabilidad. |
 | **[COBERTURA.md](COBERTURA.md)** | Cómo se mide la cobertura de las pruebas y los resultados obtenidos. |
 | **[MIGRACION.md](MIGRACION.md)** | Guía histórica de la migración HTML→React. |
+| **[docs/DOCUMENTO_API_E_INTEGRACION.md](docs/DOCUMENTO_API_E_INTEGRACION.md)** | Catálogo de endpoints, contrato de datos y seguridad (Anexo 2). |
+| **[docs/MANUAL_DE_USUARIO.md](docs/MANUAL_DE_USUARIO.md)** | Manual de usuario con pantallazos (Anexo 4). |
+| **[docs/CONTRATO_API.md](docs/CONTRATO_API.md)** | Mapa vista→endpoint y desajustes de campos resueltos. |
 
 ### Comandos
 
 ```bash
 npm install            # instalar dependencias (primera vez)
 npm run dev            # servidor de desarrollo en http://localhost:5173
-npm test               # 116 pruebas de lógica, componentes y páginas (Karma + Jasmine)
+npm test               # 157 pruebas de lógica, servicios, componentes y páginas
 npm run test:coverage  # pruebas + reporte de cobertura en coverage/
 npm run build          # build de producción en dist/
+
+# Con el backend arriba (Gateway en :8080):
+node scripts/verificar-flujo-ep3.mjs       # humo HTTP (21 comprobaciones)
+node scripts/verificar-navegador-ep3.mjs   # humo de navegador + capturas
 ```
 
 ### Estructura del repositorio
