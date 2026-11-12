@@ -1,22 +1,37 @@
-import { createContext, useContext, useEffect, useMemo, useReducer } from "react";
-import { PRODUCTOS } from "../data/productos.js";
-import { CUPONES } from "../data/cupones.js";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState,
+} from "react";
+import * as catalogo from "../services/catalogoCache.js";
+import * as servicioCupones from "../services/cupones.js";
 import {
   agregarAlCarrito,
   cambiarCantidad,
   contarItems,
   quitarLinea,
 } from "../lib/carrito.js";
-import { aplicarCupon, calcularTotales } from "../lib/cupones.js";
+import { calcularTotales } from "../lib/cupones.js";
 
 /**
- * Estado global del carrito para toda la app.
+ * Estado global del carrito para toda la app (EP3 · Parte 6).
  *
- * - La lógica de negocio vive en src/lib/ (funciones puras); este contexto
- *   solo la orquesta y expone una API cómoda para los componentes.
- * - Persiste en localStorage con las MISMAS claves que el sitio legacy
- *   (gh_carrito_v1 / gh_cupon_activo_v1), de modo que un carrito armado
- *   en la versión anterior se conserva al entrar a la nueva.
+ * Diferencias con la versión de la EP2:
+ *
+ * - El catálogo usado para validar stock ya **no** es `src/data/productos.js`:
+ *   lo entrega el backend (product-service + inventory-service) a través de
+ *   `services/catalogoCache.js`, que además evita repetir la petición en cada
+ *   tarjeta del catálogo. Si el backend no está disponible, el catálogo cae a
+ *   la semilla local para que el carrito siga siendo usable.
+ * - El cupón se valida **contra el servidor** (`promotion-service`); el cálculo
+ *   del descuento sigue siendo local (`lib/cupones.js`) porque el total final
+ *   lo vuelve a validar el backend al crear la orden.
+ *
+ * El estado del carrito (líneas y cupón) sigue persistiendo en localStorage con
+ * las MISMAS claves del sitio legacy (gh_carrito_v1 / gh_cupon_activo_v1).
  */
 
 const STORAGE_KEY_CARRITO = "gh_carrito_v1";
@@ -55,6 +70,10 @@ const CarritoContext = createContext(null);
 
 export function CarritoProvider({ children }) {
   const [estado, dispatch] = useReducer(reductor, undefined, cargarEstadoInicial);
+  // Catálogo para validar stock. Arranca con la semilla local (sincrónica) para
+  // que el primer render y las pruebas sin backend funcionen; cuando llegan los
+  // datos reales de la API se reemplaza.
+  const [productos, setProductos] = useState(() => catalogo.semilla());
 
   // Sincronización con localStorage (equivalente a guardarCarrito del legacy)
   useEffect(() => {
@@ -69,9 +88,25 @@ export function CarritoProvider({ children }) {
     }
   }, [estado.cupon]);
 
+  // El catálogo real se pide una sola vez (la promesa se memoiza en catalogoCache).
+  useEffect(() => {
+    let vigente = true;
+    catalogo
+      .obtener()
+      .then((lista) => {
+        if (vigente && Array.isArray(lista) && lista.length > 0) setProductos(lista);
+      })
+      .catch(() => {
+        /* sin backend se conserva la semilla local */
+      });
+    return () => {
+      vigente = false;
+    };
+  }, []);
+
   const value = useMemo(() => {
     function agregar(idProducto, cantidad = 1) {
-      const res = agregarAlCarrito(estado.items, PRODUCTOS, idProducto, cantidad);
+      const res = agregarAlCarrito(estado.items, productos, idProducto, cantidad);
       if (res.exito) dispatch({ type: "REEMPLAZAR_ITEMS", items: res.carrito });
       return res;
     }
@@ -81,13 +116,18 @@ export function CarritoProvider({ children }) {
     }
 
     function cambiarCantidadItem(idProducto, cantidad) {
-      const res = cambiarCantidad(estado.items, PRODUCTOS, idProducto, cantidad);
+      const res = cambiarCantidad(estado.items, productos, idProducto, cantidad);
       if (res.exito) dispatch({ type: "REEMPLAZAR_ITEMS", items: res.carrito });
       return res;
     }
 
-    function aplicarCuponCodigo(codigo) {
-      const res = aplicarCupon(CUPONES, codigo);
+    /**
+     * Valida el cupón en el servidor y lo deja aplicado.
+     * Devuelve siempre `{ exito, cupon, mensaje }`, igual que la versión local
+     * de la EP2 (la vista del carrito no cambia por ser asíncrono).
+     */
+    async function aplicarCuponCodigo(codigo) {
+      const res = await servicioCupones.validar(codigo);
       dispatch({ type: "ESTABLECER_CUPON", cupon: res.exito ? res.cupon : null });
       return res;
     }
@@ -105,6 +145,7 @@ export function CarritoProvider({ children }) {
       cupon: estado.cupon,
       totalItems: contarItems(estado.items),
       totales: calcularTotales(estado.items, estado.cupon),
+      productos,
       agregar,
       quitar,
       cambiarCantidad: cambiarCantidadItem,
@@ -112,7 +153,7 @@ export function CarritoProvider({ children }) {
       quitarCupon,
       vaciar,
     };
-  }, [estado]);
+  }, [estado, productos]);
 
   return <CarritoContext.Provider value={value}>{children}</CarritoContext.Provider>;
 }

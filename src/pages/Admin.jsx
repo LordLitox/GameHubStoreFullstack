@@ -1,70 +1,85 @@
 import { useState } from "react";
 import { useTitulo } from "../hooks/useTitulo.js";
+import { useDatos } from "../hooks/useDatos.js";
+import { Cargando, ErrorCarga } from "../components/EstadoCarga.jsx";
 import {
-  listarProductos,
-  crearProducto,
-  actualizarProducto,
-  eliminarProducto,
-  restablecerProductos,
-  CATEGORIAS,
-} from "../data/productos.js";
-import {
-  listarCupones,
-  crearCupon,
-  actualizarCupon,
-  eliminarCupon,
-  restablecerCupones,
-} from "../data/cupones.js";
+  admin as servicioAdmin,
+  catalogo as servicioCatalogo,
+  mensajeDeError,
+} from "../services/index.js";
 
 // Formulario vacío para reutilizarlo como estado inicial (crear) y como
 // valor de reinicio tras una operación exitosa.
 const FORM_PRODUCTO_VACIO = {
   nombre: "",
   marca: "",
-  categoria: CATEGORIAS[0],
+  categoriaId: "",
   precio: "",
-  stockDisponible: "",
-  destacado: false,
+  precioNormal: "",
+  stock: "",
   imagen: "",
   descripcion: "",
+  activo: true,
 };
 
 const FORM_CUPON_VACIO = {
   codigo: "",
   porcentaje: "",
   topeMaximo: "",
+  inicio: "",
   expira: "",
+  usosMaximos: "1",
 };
 
 function formatearPrecio(valor) {
-  return `$${Number(valor).toLocaleString("es-CL")}`;
+  return `$${Number(valor ?? 0).toLocaleString("es-CL")}`;
 }
 
 /**
- * Panel de administración (EP2): interfaz que consume las operaciones CRUD
- * de src/data/productos.js y src/data/cupones.js. Como la EP2 no tiene
- * backend, las colecciones viven en memoria durante la sesión; por eso un
- * contador `version` fuerza el re-render después de cada escritura.
+ * Panel de administración (rol ADMIN).
+ *
+ * EP3 · Parte 6: las colecciones ya no viven en la memoria del navegador. La
+ * interfaz ahora consume `services/admin.js` contra `/api/v1/admin/**`
+ * (product-service, category-service y promotion-service). Cada escritura se
+ * confirma en el servidor y luego se refresca la tabla con la respuesta real:
+ * así el ID y los precios que se ven son los que quedaron guardados.
+ *
+ * La pestaña de cupones trabaja sobre promociones; el CRUD de productos
+ * incluye activar/desactivar la venta (no hay borrado físico en el backend).
  */
 export default function Admin() {
   useTitulo("Administración — GameHub Store");
 
   const [vista, setVista] = useState("productos");
-  const [, setVersion] = useState(0);
   const [mensaje, setMensaje] = useState(null); // { tipo: "exito" | "error", texto }
 
   const [formProducto, setFormProducto] = useState(FORM_PRODUCTO_VACIO);
   const [idEnEdicion, setIdEnEdicion] = useState(null);
 
   const [formCupon, setFormCupon] = useState(FORM_CUPON_VACIO);
-  const [codigoEnEdicion, setCodigoEnEdicion] = useState(null);
+  const [idCuponEnEdicion, setIdCuponEnEdicion] = useState(null);
 
-  // Se recalculan en cada render; `setVersion` fuerza el re-render tras un CRUD.
-  const productos = listarProductos();
-  const cupones = listarCupones();
+  const [ocupado, setOcupado] = useState(false);
 
-  function avisar(resultado) {
-    setMensaje({ tipo: resultado.exito ? "exito" : "error", texto: resultado.mensaje });
+  // Datos del backend (productos activos e inactivos, y promociones).
+  const {
+    datos: productos,
+    cargando: cargandoProductos,
+    error: errorProductos,
+    recargar: recargarProductos,
+  } = useDatos(() => servicioAdmin.productos.listar(), []);
+
+  const { datos: categorias } = useDatos(() => servicioAdmin.categorias.listar(), []);
+
+  const {
+    datos: cupones,
+    cargando: cargandoCupones,
+    error: errorCupones,
+    recargar: recargarCupones,
+  } = useDatos(() => servicioAdmin.promociones.listar(), []);
+
+  function avisar(tipo, texto) {
+    setMensaje({ tipo, texto });
   }
 
   // ------------------------------- Productos -------------------------------
@@ -73,33 +88,38 @@ export default function Admin() {
     setFormProducto((previo) => ({ ...previo, [campo]: valor }));
   }
 
-  function enviarProducto(evento) {
+  async function enviarProducto(evento) {
     evento.preventDefault();
+    setOcupado(true);
+    setMensaje(null);
+    try {
+      const datos = {
+        nombre: formProducto.nombre,
+        marca: formProducto.marca,
+        categoriaId: formProducto.categoriaId,
+        precio: formProducto.precio,
+        precioNormal: formProducto.precioNormal,
+        stock: formProducto.stock,
+        imagen: formProducto.imagen,
+        descripcion: formProducto.descripcion,
+      };
 
-    const datos = {
-      nombre: formProducto.nombre,
-      marca: formProducto.marca,
-      categoria: formProducto.categoria,
-      // Un precio vacío debe fallar la validación, no convertirse en 0.
-      precio: formProducto.precio === "" ? NaN : Number(formProducto.precio),
-      stockDisponible:
-        formProducto.stockDisponible === "" ? 0 : Number(formProducto.stockDisponible),
-      destacado: Boolean(formProducto.destacado),
-      imagen: formProducto.imagen,
-      descripcion: formProducto.descripcion,
-    };
+      if (idEnEdicion === null) {
+        await servicioAdmin.productos.crear(datos);
+        avisar("exito", "Producto creado correctamente.");
+      } else {
+        await servicioAdmin.productos.actualizar(idEnEdicion, datos);
+        avisar("exito", "Producto actualizado correctamente.");
+      }
 
-    const resultado =
-      idEnEdicion === null
-        ? crearProducto(datos)
-        : actualizarProducto(idEnEdicion, datos);
-
-    avisar(resultado);
-
-    if (resultado.exito) {
       setFormProducto(FORM_PRODUCTO_VACIO);
       setIdEnEdicion(null);
-      setVersion((v) => v + 1);
+      recargarProductos();
+      servicioCatalogo.invalidar();
+    } catch (fallo) {
+      avisar("error", mensajeDeError(fallo));
+    } finally {
+      setOcupado(false);
     }
   }
 
@@ -108,12 +128,13 @@ export default function Admin() {
     setFormProducto({
       nombre: producto.nombre,
       marca: producto.marca,
-      categoria: producto.categoria,
-      precio: String(producto.precio),
-      stockDisponible: String(producto.stockDisponible),
-      destacado: Boolean(producto.destacado),
-      imagen: producto.imagen,
-      descripcion: producto.descripcion,
+      categoriaId: String(producto.categoriaId ?? ""),
+      precio: String(producto.precio ?? ""),
+      precioNormal: producto.precioNormal ? String(producto.precioNormal) : "",
+      stock: "",
+      imagen: producto.imagen ?? "",
+      descripcion: producto.descripcion ?? "",
+      activo: producto.activo,
     });
     setMensaje(null);
   }
@@ -124,20 +145,22 @@ export default function Admin() {
     setMensaje(null);
   }
 
-  function borrarProducto(producto) {
-    if (!window.confirm(`¿Eliminar el producto "${producto.nombre}"?`)) return;
-    const resultado = eliminarProducto(producto.id);
-    avisar(resultado);
-    if (idEnEdicion === producto.id) cancelarEdicionProducto();
-    setVersion((v) => v + 1);
-  }
-
-  function reiniciarProductos() {
-    if (!window.confirm("¿Restablecer la lista de productos a su estado inicial?")) return;
-    restablecerProductos();
-    cancelarEdicionProducto();
-    setMensaje({ tipo: "exito", texto: "Productos restablecidos al estado inicial." });
-    setVersion((v) => v + 1);
+  async function alternarActivo(producto) {
+    setOcupado(true);
+    setMensaje(null);
+    try {
+      await servicioAdmin.productos.cambiarActivo(producto.id, !producto.activo);
+      avisar(
+        "exito",
+        `Producto "${producto.nombre}" ${producto.activo ? "desactivado" : "activado"}.`
+      );
+      recargarProductos();
+      servicioCatalogo.invalidar();
+    } catch (fallo) {
+      avisar("error", mensajeDeError(fallo));
+    } finally {
+      setOcupado(false);
+    }
   }
 
   // -------------------------------- Cupones --------------------------------
@@ -146,61 +169,69 @@ export default function Admin() {
     setFormCupon((previo) => ({ ...previo, [campo]: valor }));
   }
 
-  function enviarCupon(evento) {
+  async function enviarCupon(evento) {
     evento.preventDefault();
+    setOcupado(true);
+    setMensaje(null);
+    try {
+      const datos = {
+        codigo: formCupon.codigo,
+        porcentaje: formCupon.porcentaje,
+        topeMaximo: formCupon.topeMaximo,
+        inicio: formCupon.inicio,
+        expira: formCupon.expira,
+        usosMaximos: formCupon.usosMaximos,
+      };
 
-    const datos = {
-      codigo: formCupon.codigo,
-      porcentaje: formCupon.porcentaje === "" ? NaN : Number(formCupon.porcentaje),
-      topeMaximo: formCupon.topeMaximo === "" ? 0 : Number(formCupon.topeMaximo),
-      expira: formCupon.expira,
-    };
+      if (idCuponEnEdicion === null) {
+        await servicioAdmin.promociones.crear(datos);
+        avisar("exito", "Cupón creado correctamente.");
+      } else {
+        await servicioAdmin.promociones.actualizar(idCuponEnEdicion, datos);
+        avisar("exito", "Cupón actualizado correctamente.");
+      }
 
-    const resultado =
-      codigoEnEdicion === null
-        ? crearCupon(datos)
-        : actualizarCupon(codigoEnEdicion, datos);
-
-    avisar(resultado);
-
-    if (resultado.exito) {
       setFormCupon(FORM_CUPON_VACIO);
-      setCodigoEnEdicion(null);
-      setVersion((v) => v + 1);
+      setIdCuponEnEdicion(null);
+      recargarCupones();
+    } catch (fallo) {
+      avisar("error", mensajeDeError(fallo));
+    } finally {
+      setOcupado(false);
     }
   }
 
   function editarCupon(cupon) {
-    setCodigoEnEdicion(cupon.codigo);
+    setIdCuponEnEdicion(cupon.id);
     setFormCupon({
       codigo: cupon.codigo,
-      porcentaje: String(cupon.porcentaje),
-      topeMaximo: String(cupon.topeMaximo),
-      expira: cupon.expira,
+      porcentaje: String(cupon.porcentaje ?? ""),
+      topeMaximo: String(cupon.topeMaximo ?? ""),
+      inicio: cupon.inicio ?? "",
+      expira: cupon.expira ?? "",
+      usosMaximos: String(cupon.usosMaximos ?? 1),
     });
     setMensaje(null);
   }
 
   function cancelarEdicionCupon() {
-    setCodigoEnEdicion(null);
+    setIdCuponEnEdicion(null);
     setFormCupon(FORM_CUPON_VACIO);
     setMensaje(null);
   }
 
-  function borrarCupon(cupon) {
-    if (!window.confirm(`¿Eliminar el cupón "${cupon.codigo}"?`)) return;
-    const resultado = eliminarCupon(cupon.codigo);
-    avisar(resultado);
-    if (codigoEnEdicion === cupon.codigo) cancelarEdicionCupon();
-    setVersion((v) => v + 1);
-  }
-
-  function reiniciarCupones() {
-    if (!window.confirm("¿Restablecer la lista de cupones a su estado inicial?")) return;
-    restablecerCupones();
-    cancelarEdicionCupon();
-    setMensaje({ tipo: "exito", texto: "Cupones restablecidos al estado inicial." });
-    setVersion((v) => v + 1);
+  async function alternarActivoCupon(cupon) {
+    setOcupado(true);
+    setMensaje(null);
+    try {
+      await servicioAdmin.promociones.cambiarActivo(cupon.id, !cupon.activa);
+      avisar("exito", `Cupón "${cupon.codigo}" ${cupon.activa ? "desactivado" : "activado"}.`);
+      recargarCupones();
+    } catch (fallo) {
+      avisar("error", mensajeDeError(fallo));
+    } finally {
+      setOcupado(false);
+    }
   }
 
   return (
@@ -209,7 +240,7 @@ export default function Admin() {
         <h1>Administración</h1>
         <p>
           Gestiona el catálogo de productos y los cupones de descuento. Los
-          cambios se aplican en memoria durante esta sesión (EP2 sin backend).
+          cambios se guardan en el servidor (product-service y promotion-service).
         </p>
 
         {/* Pestañas de la sección */}
@@ -251,6 +282,11 @@ export default function Admin() {
           <section id="panel-productos" role="tabpanel" aria-labelledby="tab-productos">
             <h2>Gestión de productos</h2>
 
+            {cargandoProductos && <Cargando texto="Cargando productos…" />}
+            {errorProductos && (
+              <ErrorCarga mensaje={errorProductos} onReintentar={recargarProductos} />
+            )}
+
             <div className="row g-4">
               {/* Formulario */}
               <div className="col-12 col-lg-5">
@@ -286,11 +322,12 @@ export default function Admin() {
                         <select
                           className="form-select"
                           id="prod-categoria"
-                          value={formProducto.categoria}
-                          onChange={(e) => cambiarCampoProducto("categoria", e.target.value)}
+                          value={formProducto.categoriaId}
+                          onChange={(e) => cambiarCampoProducto("categoriaId", e.target.value)}
                         >
-                          {CATEGORIAS.map((cat) => (
-                            <option key={cat} value={cat}>{cat}</option>
+                          <option value="">Selecciona una categoría...</option>
+                          {(categorias ?? []).map((cat) => (
+                            <option key={cat.id} value={cat.id}>{cat.nombre}</option>
                           ))}
                         </select>
                       </div>
@@ -308,17 +345,32 @@ export default function Admin() {
                           />
                         </div>
                         <div className="col-6 mb-3">
-                          <label className="form-label" htmlFor="prod-stock">Stock *</label>
+                          <label className="form-label" htmlFor="prod-precio-normal">Precio normal ($)</label>
+                          <input
+                            className="form-control"
+                            type="number"
+                            min="0"
+                            id="prod-precio-normal"
+                            placeholder="Solo si hay oferta"
+                            value={formProducto.precioNormal}
+                            onChange={(e) => cambiarCampoProducto("precioNormal", e.target.value)}
+                          />
+                        </div>
+                      </div>
+
+                      {idEnEdicion === null && (
+                        <div className="mb-3">
+                          <label className="form-label" htmlFor="prod-stock">Stock inicial</label>
                           <input
                             className="form-control"
                             type="number"
                             min="0"
                             id="prod-stock"
-                            value={formProducto.stockDisponible}
-                            onChange={(e) => cambiarCampoProducto("stockDisponible", e.target.value)}
+                            value={formProducto.stock}
+                            onChange={(e) => cambiarCampoProducto("stock", e.target.value)}
                           />
                         </div>
-                      </div>
+                      )}
 
                       <div className="mb-3">
                         <label className="form-label" htmlFor="prod-imagen">Ruta de imagen</label>
@@ -342,21 +394,8 @@ export default function Admin() {
                         />
                       </div>
 
-                      <div className="form-check mb-3">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id="prod-destacado"
-                          checked={formProducto.destacado}
-                          onChange={(e) => cambiarCampoProducto("destacado", e.target.checked)}
-                        />
-                        <label className="form-check-label" htmlFor="prod-destacado">
-                          Producto destacado
-                        </label>
-                      </div>
-
                       <div className="d-flex gap-2">
-                        <button type="submit" className="btn btn-primary">
+                        <button type="submit" className="btn btn-primary" disabled={ocupado}>
                           {idEnEdicion === null ? "Crear producto" : "Guardar cambios"}
                         </button>
                         {idEnEdicion !== null && (
@@ -376,16 +415,7 @@ export default function Admin() {
 
               {/* Tabla */}
               <div className="col-12 col-lg-7">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h3 className="h5 mb-0">Catálogo ({productos.length})</h3>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={reiniciarProductos}
-                  >
-                    Restablecer datos
-                  </button>
-                </div>
+                <h3 className="h5 mb-2">Catálogo ({(productos ?? []).length})</h3>
 
                 <div className="table-responsive">
                   <table className="table table-striped align-middle">
@@ -396,25 +426,31 @@ export default function Admin() {
                         <th scope="col">Nombre</th>
                         <th scope="col">Categoría</th>
                         <th scope="col">Precio</th>
-                        <th scope="col">Stock</th>
+                        <th scope="col">Estado</th>
                         <th scope="col">Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {productos.map((producto) => (
+                      {(productos ?? []).map((producto) => (
                         <tr key={producto.id}>
                           <td>{producto.id}</td>
                           <td>
                             {producto.nombre}
-                            {producto.destacado && (
-                              <span className="badge text-bg-warning ms-2">Destacado</span>
+                            {producto.precioNormal > producto.precio && (
+                              <span className="badge text-bg-warning ms-2">Oferta</span>
                             )}
                           </td>
                           <td>{producto.categoria}</td>
                           <td>{formatearPrecio(producto.precio)}</td>
-                          <td>{producto.stockDisponible}</td>
                           <td>
-                            <div className="d-flex gap-1">
+                            {producto.activo ? (
+                              <span className="badge text-bg-success">Activo</span>
+                            ) : (
+                              <span className="badge text-bg-secondary">Inactivo</span>
+                            )}
+                          </td>
+                          <td>
+                            <div className="d-flex flex-wrap gap-1">
                               <button
                                 type="button"
                                 className="btn btn-sm btn-outline-primary"
@@ -425,11 +461,12 @@ export default function Admin() {
                               </button>
                               <button
                                 type="button"
-                                className="btn btn-sm btn-outline-danger"
-                                aria-label={`Eliminar ${producto.nombre}`}
-                                onClick={() => borrarProducto(producto)}
+                                className="btn btn-sm btn-outline-secondary"
+                                disabled={ocupado}
+                                aria-label={`${producto.activo ? "Desactivar" : "Activar"} ${producto.nombre}`}
+                                onClick={() => alternarActivo(producto)}
                               >
-                                Eliminar
+                                {producto.activo ? "Desactivar" : "Activar"}
                               </button>
                             </div>
                           </td>
@@ -445,13 +482,18 @@ export default function Admin() {
           <section id="panel-cupones" role="tabpanel" aria-labelledby="tab-cupones">
             <h2>Gestión de cupones</h2>
 
+            {cargandoCupones && <Cargando texto="Cargando cupones…" />}
+            {errorCupones && <ErrorCarga mensaje={errorCupones} onReintentar={recargarCupones} />}
+
             <div className="row g-4">
               {/* Formulario */}
               <div className="col-12 col-lg-5">
                 <div className="card">
                   <div className="card-body">
                     <h3 className="h5 mb-3">
-                      {codigoEnEdicion === null ? "Nuevo cupón" : `Editar cupón ${codigoEnEdicion}`}
+                      {idCuponEnEdicion === null
+                        ? "Nuevo cupón"
+                        : `Editar cupón ${formCupon.codigo}`}
                     </h3>
 
                     <form onSubmit={enviarCupon} noValidate>
@@ -461,7 +503,7 @@ export default function Admin() {
                           className="form-control"
                           id="cup-codigo"
                           value={formCupon.codigo}
-                          disabled={codigoEnEdicion !== null}
+                          disabled={idCuponEnEdicion !== null}
                           onChange={(e) => cambiarCampoCupon("codigo", e.target.value)}
                         />
                       </div>
@@ -492,22 +534,46 @@ export default function Admin() {
                         </div>
                       </div>
 
+                      <div className="row">
+                        <div className="col-6 mb-3">
+                          <label className="form-label" htmlFor="cup-inicio">Vigente desde *</label>
+                          <input
+                            className="form-control"
+                            type="date"
+                            id="cup-inicio"
+                            value={formCupon.inicio}
+                            onChange={(e) => cambiarCampoCupon("inicio", e.target.value)}
+                          />
+                        </div>
+                        <div className="col-6 mb-3">
+                          <label className="form-label" htmlFor="cup-expira">Expira el *</label>
+                          <input
+                            className="form-control"
+                            type="date"
+                            id="cup-expira"
+                            value={formCupon.expira}
+                            onChange={(e) => cambiarCampoCupon("expira", e.target.value)}
+                          />
+                        </div>
+                      </div>
+
                       <div className="mb-3">
-                        <label className="form-label" htmlFor="cup-expira">Expira el *</label>
+                        <label className="form-label" htmlFor="cup-usos">Usos máximos</label>
                         <input
                           className="form-control"
-                          type="date"
-                          id="cup-expira"
-                          value={formCupon.expira}
-                          onChange={(e) => cambiarCampoCupon("expira", e.target.value)}
+                          type="number"
+                          min="1"
+                          id="cup-usos"
+                          value={formCupon.usosMaximos}
+                          onChange={(e) => cambiarCampoCupon("usosMaximos", e.target.value)}
                         />
                       </div>
 
                       <div className="d-flex gap-2">
-                        <button type="submit" className="btn btn-primary">
-                          {codigoEnEdicion === null ? "Crear cupón" : "Guardar cambios"}
+                        <button type="submit" className="btn btn-primary" disabled={ocupado}>
+                          {idCuponEnEdicion === null ? "Crear cupón" : "Guardar cambios"}
                         </button>
-                        {codigoEnEdicion !== null && (
+                        {idCuponEnEdicion !== null && (
                           <button
                             type="button"
                             className="btn btn-outline-secondary"
@@ -524,16 +590,7 @@ export default function Admin() {
 
               {/* Tabla */}
               <div className="col-12 col-lg-7">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h3 className="h5 mb-0">Cupones ({cupones.length})</h3>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={reiniciarCupones}
-                  >
-                    Restablecer datos
-                  </button>
-                </div>
+                <h3 className="h5 mb-2">Cupones ({(cupones ?? []).length})</h3>
 
                 <div className="table-responsive">
                   <table className="table table-striped align-middle">
@@ -544,18 +601,27 @@ export default function Admin() {
                         <th scope="col">Descuento</th>
                         <th scope="col">Tope máximo</th>
                         <th scope="col">Expira</th>
+                        <th scope="col">Usos</th>
                         <th scope="col">Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {cupones.map((cupon) => (
-                        <tr key={cupon.codigo}>
-                          <td>{cupon.codigo}</td>
+                      {(cupones ?? []).map((cupon) => (
+                        <tr key={cupon.id}>
+                          <td>
+                            {cupon.codigo}
+                            {!cupon.activa && (
+                              <span className="badge text-bg-secondary ms-2">Inactivo</span>
+                            )}
+                          </td>
                           <td>{cupon.porcentaje}%</td>
                           <td>{formatearPrecio(cupon.topeMaximo)}</td>
-                          <td>{cupon.expira}</td>
+                          <td>{cupon.expira ?? "—"}</td>
                           <td>
-                            <div className="d-flex gap-1">
+                            {cupon.usos} / {cupon.usosMaximos}
+                          </td>
+                          <td>
+                            <div className="d-flex flex-wrap gap-1">
                               <button
                                 type="button"
                                 className="btn btn-sm btn-outline-primary"
@@ -566,11 +632,12 @@ export default function Admin() {
                               </button>
                               <button
                                 type="button"
-                                className="btn btn-sm btn-outline-danger"
-                                aria-label={`Eliminar cupón ${cupon.codigo}`}
-                                onClick={() => borrarCupon(cupon)}
+                                className="btn btn-sm btn-outline-secondary"
+                                disabled={ocupado}
+                                aria-label={`${cupon.activa ? "Desactivar" : "Activar"} cupón ${cupon.codigo}`}
+                                onClick={() => alternarActivoCupon(cupon)}
                               >
-                                Eliminar
+                                {cupon.activa ? "Desactivar" : "Activar"}
                               </button>
                             </div>
                           </td>

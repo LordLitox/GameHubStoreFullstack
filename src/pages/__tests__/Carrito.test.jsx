@@ -6,10 +6,14 @@ import {
   mockLocalStorage,
   renderConProveedores,
 } from "../../__tests__/ayudas/render.jsx";
+import { cuponDto, esperarHasta, simularFetch } from "../../__tests__/ayudas/api.js";
 
 /**
  * Página Carrito: estado vacío, tabla de líneas, control de cantidades,
  * cupones y totales. La tabla se manipula con clicks reales sobre el DOM.
+ *
+ * EP3 · Parte 7: el cupón ahora se valida en promotion-service, así que el
+ * Gateway se simula y las pruebas de cupón esperan la respuesta asíncrona.
  */
 
 const NOMBRE = "Notebook Gamer Asus ROG Strix G16";
@@ -31,6 +35,16 @@ function renderCarrito(almacen, ruta = "/carrito") {
 }
 
 describe("Carrito", () => {
+  beforeEach(() => {
+    // El cupón se valida en el Gateway simulado; el catálogo cae a la semilla.
+    const api = simularFetch();
+    api.responder("GET", "/promociones/validar", (opciones) =>
+      /NOEXISTE/i.test(opciones.url)
+        ? { status: 404, cuerpo: { mensaje: "El cupón no existe o no es válido." } }
+        : { status: 200, cuerpo: cuponDto() }
+    );
+  });
+
   it("muestra el estado vacío con el enlace al catálogo", () => {
     mockLocalStorage();
     renderCarrito();
@@ -86,7 +100,7 @@ describe("Carrito", () => {
     expect(almacen.leer(CLAVE_CARRITO)).toEqual([]);
   });
 
-  it("informa el error cuando el cupón no existe", () => {
+  it("informa el error cuando el cupón no existe", async () => {
     const almacen = mockLocalStorage();
     almacen.precargar(CLAVE_CARRITO, [lineaGuardada(1)]);
     renderCarrito(almacen);
@@ -96,13 +110,14 @@ describe("Carrito", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Aplicar" }));
 
-    expect(screen.getByRole("alert").textContent).toContain(
-      "El cupón no existe o no es válido."
+    await esperarHasta(() =>
+      screen.queryByText(/El cupón no existe o no es válido\./)
     );
+    expect(screen.getByRole("alert").textContent).toContain("El cupón no existe o no es válido.");
     expect(almacen.leer(CLAVE_CUPON)).toBeNull();
   });
 
-  it("aplica un cupón vigente y descuenta el total", () => {
+  it("aplica un cupón vigente y descuenta el total", async () => {
     const almacen = mockLocalStorage();
     almacen.precargar(CLAVE_CARRITO, [lineaGuardada(1, 100000)]);
     const { container } = renderCarrito(almacen);
@@ -112,7 +127,7 @@ describe("Carrito", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Aplicar" }));
 
-    expect(screen.getByText("GAMEHUB20 (20% dscto activo)")).toBeTruthy();
+    await esperarHasta(() => screen.queryByText("GAMEHUB20 (20% dscto activo)"));
     expect(screen.getByRole("alert").textContent).toContain("aplicado con éxito");
     expect(almacen.leer(CLAVE_CUPON).codigo).toBe("GAMEHUB20");
 

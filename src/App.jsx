@@ -8,16 +8,18 @@ import Carrito from "./pages/Carrito.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import Ordenes from "./pages/Ordenes.jsx";
 import Admin from "./pages/Admin.jsx";
+import Vendedor from "./pages/Vendedor.jsx";
 import Ingresar from "./pages/Ingresar.jsx";
 import NoEncontrada from "./pages/NoEncontrada.jsx";
 
 /**
  * Rutas de la aplicación.
  *
- * Las vistas de compra (`/checkout`, `/ordenes`) exigen rol CLIENTE y el panel
- * de administración, rol ADMIN (EP3 · Parte 5). El catálogo, la ficha de
- * producto y el carrito son públicos: se puede mirar y armar el carrito sin
- * cuenta, pero no cerrar la compra.
+ * Las vistas de compra (`/checkout`, `/ordenes`) exigen rol CLIENTE; el panel
+ * de administración, rol ADMIN; y el de ventas (`/vendedor`), rol OPERADOR o
+ * ADMIN (EP3 · Partes 5-6). El catálogo, la ficha de producto y el carrito son
+ * públicos: se puede mirar y armar el carrito sin cuenta, pero no cerrar la
+ * compra.
  */
 export default function App() {
   return (
@@ -42,6 +44,14 @@ export default function App() {
           element={
             <RutaProtegida roles={["CLIENTE"]}>
               <Ordenes />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/vendedor"
+          element={
+            <RutaProtegida roles={["OPERADOR", "ADMIN"]}>
+              <Vendedor />
             </RutaProtegida>
           }
         />

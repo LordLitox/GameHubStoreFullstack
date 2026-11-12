@@ -6,11 +6,17 @@ import {
   CLAVE_CUPON,
   mockLocalStorage,
 } from "../../__tests__/ayudas/render.jsx";
+import { cuponDto, esperarHasta, simularFetch } from "../../__tests__/ayudas/api.js";
+import { invalidar as invalidarCatalogo } from "../../services/catalogoCache.js";
 
 /**
  * CarritoContext: estado global (reducer) y su sincronización con
  * localStorage. Se ejercita mediante una sonda que expone la API del contexto
  * en el DOM, igual que lo haría una página.
+ *
+ * EP3 · Parte 6-7: el contexto valida el cupón contra promotion-service, así
+ * que las pruebas simulan el Gateway. El stock se valida contra el catálogo,
+ * que sin backend responde con la semilla local (mismo PRODUCTOS de siempre).
  */
 
 const PRODUCTO_CON_STOCK = PRODUCTOS.find((p) => p.stockDisponible > 0);
@@ -113,6 +119,25 @@ function pulsar(nombre) {
 }
 
 describe("CarritoContext", () => {
+  let api;
+
+  beforeEach(() => {
+    // El catálogo y el cupón pasan por el Gateway simulado. El catálogo se deja
+    // sin respuesta para que el contexto use la semilla local (rápido y estable).
+    api = simularFetch();
+    invalidarCatalogo();
+    // `validar` resuelve por query (?codigo=): se responde según el código.
+    api.responder("GET", "/promociones/validar", (opciones) =>
+      /NOEXISTE/.test(opciones.url)
+        ? { status: 404, cuerpo: { mensaje: "El cupón no existe o no es válido." } }
+        : { status: 200, cuerpo: cuponDto() }
+    );
+  });
+
+  afterEach(() => {
+    invalidarCatalogo();
+  });
+
   it("exige estar dentro del provider", () => {
     render(<SondaSinProvider />);
 
@@ -183,27 +208,28 @@ describe("CarritoContext", () => {
     expect(valorDe("total-items")).toBe("2");
   });
 
-  it("aplica un cupón vigente y lo persiste", () => {
+  it("aplica un cupón vigente y lo persiste", async () => {
     const almacen = mockLocalStorage();
     almacen.precargar(CLAVE_CARRITO, [lineaGuardada(2)]);
     renderSonda();
 
     pulsar("cupón válido");
 
-    expect(valorDe("cupon")).toBe("GAMEHUB20");
+    await esperarHasta(() => valorDe("cupon") === "GAMEHUB20");
     expect(valorDe("descuento")).toBe("40000");
     expect(valorDe("total")).toBe("160000");
     expect(almacen.leer(CLAVE_CUPON).codigo).toBe("GAMEHUB20");
   });
 
-  it("descarta un cupón inválido y borra el guardado", () => {
+  it("descarta un cupón inválido y borra el guardado", async () => {
     mockLocalStorage();
     renderSonda();
 
     pulsar("cupón inválido");
 
+    // El backend responde 404: el contexto deja el cupón en null.
+    await esperarHasta(() => window.localStorage.removeItem.calls?.allArgs().some(([k]) => k === CLAVE_CUPON));
     expect(valorDe("cupon")).toBe("sin-cupon");
-    expect(window.localStorage.removeItem).toHaveBeenCalledWith(CLAVE_CUPON);
   });
 
   it("quitar el cupón vuelve a los totales sin descuento", () => {
