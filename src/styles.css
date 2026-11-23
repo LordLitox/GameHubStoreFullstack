@@ -273,6 +273,25 @@ textarea:focus-visible,
   padding-inline: 0.25rem;
 }
 
+/* Bloque de sesión de la cabecera (EP3 · Parte 4/5) */
+.sesion-cabecera {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-sm);
+}
+
+.sesion-cabecera__usuario {
+  color: var(--color-texto-alto);
+  font-size: var(--tam-pequeno);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sesion-cabecera__rol {
+  color: var(--color-acento);
+  font-weight: 500;
+}
+
 /* Formularios */
 .form-control,
 .form-select {

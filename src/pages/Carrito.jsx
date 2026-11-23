@@ -26,11 +26,24 @@ export default function Carrito() {
 
   const [codigo, setCodigo] = useState("");
   const [mensajeCupon, setMensajeCupon] = useState(null); // { tipo: "error" | "exito", texto }
+  const [validandoCupon, setValidandoCupon] = useState(false);
 
-  function manejarAplicarCupon() {
-    const res = aplicarCupon(codigo);
-    setMensajeCupon({ tipo: res.exito ? "exito" : "error", texto: res.mensaje });
-    if (res.exito) setCodigo("");
+  // El cupón se valida contra promotion-service (EP3 · Parte 6): la operación es
+  // asíncrona y puede fallar por red, así que se muestra un estado "Validando…".
+  async function manejarAplicarCupon() {
+    setValidandoCupon(true);
+    try {
+      const res = await aplicarCupon(codigo);
+      setMensajeCupon({ tipo: res.exito ? "exito" : "error", texto: res.mensaje });
+      if (res.exito) setCodigo("");
+    } catch (error) {
+      setMensajeCupon({
+        tipo: "error",
+        texto: "No se pudo validar el cupón. Revisa tu conexión e inténtalo otra vez.",
+      });
+    } finally {
+      setValidandoCupon(false);
+    }
   }
 
   function manejarQuitarCupon() {
@@ -176,8 +189,13 @@ export default function Carrito() {
                     onChange={(e) => setCodigo(e.target.value)}
                     aria-describedby="mensaje-cupon"
                   />
-                  <button type="button" className="btn btn-outline-primary" onClick={manejarAplicarCupon}>
-                    Aplicar
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={manejarAplicarCupon}
+                    disabled={validandoCupon}
+                  >
+                    {validandoCupon ? "Validando…" : "Aplicar"}
                   </button>
                 </div>
 

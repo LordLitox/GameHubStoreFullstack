@@ -1,45 +1,53 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useTitulo } from "../hooks/useTitulo.js";
+import { useDatos } from "../hooks/useDatos.js";
+import { Cargando, ErrorCarga } from "../components/EstadoCarga.jsx";
+import { ordenes as servicioOrdenes } from "../services/index.js";
+import { formatearPesosCLP } from "../lib/formato.js";
 import {
   validarFechaGarantia,
   validarSelect,
   validarDetalleGarantia,
 } from "../lib/validaciones.js";
 
-// Órdenes simuladas de demostración (igual que el legacy, EP1 sin backend)
-const ORDENES_SIMULADAS = [
-  {
-    numero: "GH-742910",
-    fecha: "15 de Agosto, 2026",
-    estado: "Entregado",
-    entregado: true,
-    producto: "1x Mouse Inalámbrico RGB Pro",
-    seguimientoEmpresa: "BlueExpress",
-    seguimientoCodigo: "BX-99401248",
-    total: 29990,
-    pago: "Pago aprobado (Webpay Plus)",
-  },
-  {
-    numero: "GH-881204",
-    fecha: "02 de Septiembre, 2026",
-    estado: "En Tránsito a Domicilio",
-    entregado: false,
-    producto: "1x Teclado Mecánico TKL RGB",
-    seguimientoEmpresa: "Starken",
-    seguimientoCodigo: "ST-11823901",
-    total: 59990,
-    pago: "Pago aprobado (Transferencia)",
-  },
-];
+/** Fecha ISO en formato legible ("15 de agosto, 2026"). */
+function formatearFecha(fechaISO) {
+  if (!fechaISO) return "—";
+  const fecha = new Date(fechaISO);
+  if (Number.isNaN(fecha.getTime())) return String(fechaISO);
+  return fecha.toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" });
+}
+
+/** Badge del estado de la orden según lo que devuelve order-service. */
+function estiloEstado(estado) {
+  const mapa = {
+    ENTREGADA: "text-bg-success",
+    EN_TRANSITO: "text-bg-primary",
+    DESPACHADA: "text-bg-primary",
+    PAGADA: "text-bg-info",
+    PENDIENTE_PAGO: "text-bg-warning",
+    CANCELADA: "text-bg-danger",
+  };
+  return mapa[estado] ?? "text-bg-secondary";
+}
 
 /**
  * Historial de pedidos y formulario de garantía post-venta. Migrado desde
  * legacy/ordenes.html + legacy/js/validaciones.js (sección 2): las reglas
  * de la garantía (máximo 180 días, sin fechas futuras, detalle de 20+
  * caracteres) vienen de src/lib/validaciones.js.
+ *
+ * EP3 · Parte 6: las compras ya no son de mentira — se listan las órdenes
+ * reales del cliente autenticado (`GET /ordenes/mias`, rol CLIENTE).
  */
 export default function Ordenes() {
   useTitulo("Mis pedidos — GameHub Store");
+
+  const { datos: ordenes, cargando, error, recargar } = useDatos(
+    () => servicioOrdenes.mias(),
+    []
+  );
 
   const [garantia, setGarantia] = useState({ fecha: "", motivo: "", detalle: "" });
   const [errores, setErrores] = useState({});
@@ -107,44 +115,52 @@ export default function Ordenes() {
         <section className="mb-5" aria-labelledby="titulo-mis-ordenes">
           <h2 id="titulo-mis-ordenes">Tus compras recientes</h2>
 
-          <div className="d-flex flex-column gap-3">
-            {ORDENES_SIMULADAS.map((orden) => (
-              <article key={orden.numero} className="tarjeta-producto card">
-                <div className="card-body">
-                  <div
-                    className="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-2 mb-2 border-bottom"
-                  >
-                    <div>
-                      <strong className="text-body-emphasis fs-5">Orden #{orden.numero}</strong>
-                      <p className="mb-0 small text-body-secondary">Fecha de compra: {orden.fecha}</p>
-                    </div>
-                    <div>
-                      {orden.entregado ? (
-                        <span className="badge text-bg-success">✓ Entregado</span>
-                      ) : (
-                        <span className="badge text-bg-primary">🚚 {orden.estado}</span>
-                      )}
-                    </div>
-                  </div>
+          {cargando && <Cargando texto="Cargando tus pedidos…" />}
+          {error && <ErrorCarga mensaje={error} onReintentar={recargar} />}
 
-                  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <div>
-                      <p className="mb-0 fw-semibold">{orden.producto}</p>
-                      <p className="mb-0 small text-body-secondary">
-                        Seguimiento {orden.seguimientoEmpresa}: <strong>{orden.seguimientoCodigo}</strong>
-                      </p>
+          {!cargando && !error && (ordenes ?? []).length === 0 && (
+            <div className="alert alert-info" role="status">
+              <span aria-hidden="true">📦</span> <strong>Todavía no tienes pedidos.</strong>
+              <p className="mt-2 mb-0">
+                <Link className="btn btn-primary" to="/catalogo">Explorar catálogo</Link>
+              </p>
+            </div>
+          )}
+
+          {!cargando && !error && (ordenes ?? []).length > 0 && (
+            <div className="d-flex flex-column gap-3">
+              {ordenes.map((orden) => (
+                <article key={orden.id} className="tarjeta-producto card">
+                  <div className="card-body">
+                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-2 mb-2 border-bottom">
+                      <div>
+                        <strong className="text-body-emphasis fs-5">Orden #{orden.numero}</strong>
+                        <p className="mb-0 small text-body-secondary">
+                          Fecha de compra: {formatearFecha(orden.fecha)}
+                        </p>
+                      </div>
+                      <div>
+                        <span className={`badge ${estiloEstado(orden.estado)}`}>{orden.estado}</span>
+                      </div>
                     </div>
-                    <div className="text-end">
-                      <p className="tarjeta-producto__precio mb-0">
-                        ${orden.total.toLocaleString("es-CL")}
-                      </p>
-                      <span className="small text-body-secondary">{orden.pago}</span>
+
+                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                      <div>
+                        <p className="mb-0 fw-semibold">
+                          {orden.unidades} {orden.unidades === 1 ? "unidad" : "unidades"}
+                        </p>
+                      </div>
+                      <div className="text-end">
+                        <p className="tarjeta-producto__precio mb-0">
+                          {formatearPesosCLP(orden.total)}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* ----- Sección 2: Formulario de Garantía Legal ----- */}

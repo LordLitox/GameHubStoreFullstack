@@ -1,10 +1,20 @@
 # Documento de cobertura de pruebas — GameHub Store
 
-**Asignatura:** Desarrollo FullStack II (DSY1104) · **Entrega:** Evaluación Parcial 2
+**Asignatura:** Desarrollo FullStack II (DSY1104) · **Entrega:** Evaluación Parcial 3
 
 Este documento describe cómo se mide la cobertura de la batería de pruebas del
 proyecto React, resume los resultados obtenidos y deja explícito el alcance real
 de esa medición (qué módulos sí se ejercitan y cuáles todavía no).
+
+> **Actualización EP3 (12 de noviembre de 2026).** Con la integración con el
+> backend, el patrón de cobertura pasó a incluir `src/services/**`. La batería
+> creció a **157 pruebas** (14 archivos, incluida `src/services/__tests__/`) y las
+> cifras actuales son **82,57 % sentencias · 70,21 % ramas · 78,91 % funciones ·
+> 84,06 % líneas**. Parte de las ramas de manejo de error (reintentos, 401/403) se
+> ejercen en los scripts de humo `scripts/verificar-flujo-ep3.mjs` (21/21) y
+> `scripts/verificar-navegador-ep3.mjs` (14/14). Las cifras por módulo de las
+> secciones siguientes corresponden a la medición de la EP2 y se conservan como
+> referencia histórica.
 
 ## 1. Herramientas
 

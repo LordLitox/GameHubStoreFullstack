@@ -1,27 +1,12 @@
 import { useMemo, useState } from "react";
 import { useTitulo } from "../hooks/useTitulo.js";
+import { useDatos } from "../hooks/useDatos.js";
 import TarjetaProducto from "../components/TarjetaProducto.jsx";
-import { PRODUCTOS } from "../data/productos.js";
-
-const OPCIONES_CATEGORIA = [
-  { valor: "todas", texto: "Todas las categorías" },
-  { valor: "consolas", texto: "Consolas y Notebooks" },
-  { valor: "perifericos", texto: "Periféricos" },
-  { valor: "sillas", texto: "Sillas y Mobiliario" },
-  { valor: "accesorios", texto: "Hardware y Accesorios" },
-];
-
-const OPCIONES_MARCA = [
-  { valor: "todas", texto: "Todas las marcas" },
-  { valor: "asus", texto: "Asus" },
-  { valor: "lenovo", texto: "Lenovo" },
-  { valor: "msi", texto: "MSI" },
-  { valor: "logitech", texto: "Logitech" },
-  { valor: "hyperx", texto: "HyperX" },
-  { valor: "redragon", texto: "Redragon" },
-  { valor: "cougar", texto: "Cougar" },
-  { valor: "samsung", texto: "Samsung" },
-];
+import { Cargando, ErrorCarga } from "../components/EstadoCarga.jsx";
+import {
+  catalogo as servicioCatalogo,
+  categorias as servicioCategorias,
+} from "../services/index.js";
 
 const OPCIONES_ORDEN = [
   { valor: "defecto", texto: "Destacados / Defecto" },
@@ -35,6 +20,10 @@ const OPCIONES_ORDEN = [
  * Migrado desde legacy/catalogo.html + inicializarFiltrosCatalogo() de
  * legacy/js/app.js: los controles del formulario ahora son estado de React
  * y la lista filtrada se calcula con useMemo en cada cambio.
+ *
+ * EP3 · Parte 6: los productos y las categorías llegan del backend. El filtrado
+ * y el ordenamiento siguen siendo locales sobre la lista ya cargada, porque el
+ * catálogo es pequeño y así la respuesta al mover un control es instantánea.
  */
 export default function Catalogo() {
   useTitulo("Catálogo — GameHub Store");
@@ -44,6 +33,38 @@ export default function Catalogo() {
   const [precioMin, setPrecioMin] = useState("");
   const [precioMax, setPrecioMax] = useState("");
   const [orden, setOrden] = useState("defecto");
+
+  const {
+    datos: productos,
+    cargando,
+    error,
+    recargar,
+  } = useDatos(() => servicioCatalogo.obtener(), []);
+
+  // Las categorías vienen del backend; si falla, se cae a las que aparezcan
+  // en los productos cargados para no dejar el filtro vacío.
+  const { datos: categoriasBackend } = useDatos(() => servicioCategorias.listar(), []);
+  const opcionesCategoria = useMemo(() => {
+    const base =
+      categoriasBackend && categoriasBackend.length > 0
+        ? categoriasBackend.map((c) => ({ valor: c.slug, texto: c.nombre }))
+        : [...new Set((productos ?? []).map((p) => p.categoria))].map((slug) => ({
+            valor: slug,
+            texto: slug,
+          }));
+    return [{ valor: "todas", texto: "Todas las categorías" }, ...base];
+  }, [categoriasBackend, productos]);
+
+  // Las marcas se derivan de los productos cargados (no hay endpoint de marcas).
+  const opcionesMarca = useMemo(() => {
+    const marcas = [...new Set((productos ?? []).map((p) => p.marca).filter(Boolean))].sort(
+      (a, b) => a.localeCompare(b)
+    );
+    return [
+      { valor: "todas", texto: "Todas las marcas" },
+      ...marcas.map((m) => ({ valor: m.toLowerCase(), texto: m })),
+    ];
+  }, [productos]);
 
   // Validación cruzada obligatoria: el mínimo no puede superar el máximo
   const errorRangoPrecio = useMemo(() => {
@@ -60,7 +81,7 @@ export default function Catalogo() {
     const min = precioMin === "" ? 0 : Number(precioMin);
     const max = precioMax === "" ? Infinity : Number(precioMax);
 
-    let resultado = PRODUCTOS.filter(
+    let resultado = (productos ?? []).filter(
       (p) => p.precio >= min && p.precio <= max
     );
 
@@ -80,7 +101,7 @@ export default function Catalogo() {
       resultado.sort((a, b) => a.nombre.localeCompare(b.nombre));
 
     return resultado;
-  }, [categoria, marca, precioMin, precioMax, orden, errorRangoPrecio]);
+  }, [productos, categoria, marca, precioMin, precioMax, orden, errorRangoPrecio]);
 
   return (
     <div className="seccion">
@@ -110,7 +131,7 @@ export default function Catalogo() {
                       value={categoria}
                       onChange={(e) => setCategoria(e.target.value)}
                     >
-                      {OPCIONES_CATEGORIA.map((op) => (
+                      {opcionesCategoria.map((op) => (
                         <option key={op.valor} value={op.valor}>{op.texto}</option>
                       ))}
                     </select>
@@ -125,7 +146,7 @@ export default function Catalogo() {
                       value={marca}
                       onChange={(e) => setMarca(e.target.value)}
                     >
-                      {OPCIONES_MARCA.map((op) => (
+                      {opcionesMarca.map((op) => (
                         <option key={op.valor} value={op.valor}>{op.texto}</option>
                       ))}
                     </select>
@@ -197,8 +218,12 @@ export default function Catalogo() {
             <h2 id="titulo-resultados" className="visualmente-oculto">
               Lista de productos disponibles
             </h2>
+
+            {cargando && <Cargando texto="Cargando catálogo…" />}
+            {error && <ErrorCarga mensaje={error} onReintentar={recargar} />}
+
             <div className="row row-cols-1 row-cols-sm-2 row-cols-xxl-3 g-4">
-              {productosFiltrados.length === 0 ? (
+              {!cargando && !error && productosFiltrados.length === 0 ? (
                 <div className="col-12">
                   <div className="alert alert-info d-flex align-items-center gap-2" role="status">
                     <span aria-hidden="true">ℹ</span>
